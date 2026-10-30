@@ -66,7 +66,7 @@ Honest gaps: no share links, no viewer analytics, Mac only. I'll be in the comme
 
 **Title:** Loom charges $18/user/month. I built an open-source Mac alternative that keeps everything local and lets you fix the face cam after recording.
 
-Body: same as r/macapps, trimmed to 6 lines, plus one sentence on the plan (free beta → one-time purchase).
+Body: same as r/macapps, trimmed to 6 lines.
 
 ---
 

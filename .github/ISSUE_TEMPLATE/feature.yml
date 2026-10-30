@@ -1,0 +1,11 @@
+name: Feature
+description: Something you want
+labels: [enhancement]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What and why
+      placeholder: One or two sentences.
+    validations:
+      required: true

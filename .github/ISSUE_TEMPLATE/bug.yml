@@ -1,0 +1,23 @@
+name: Bug
+description: Something didn't work
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: macOS and Mac
+      placeholder: macOS 15.3, MacBook Pro M3
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What happened
+      placeholder: What you did, what you expected, what you got.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      placeholder: Screenshots, or the project.json from ~/Movies/Orbit/<recording>.
