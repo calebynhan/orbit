@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/toolbar.png" alt="Orbit's capture bar" width="720">
+  <img src="docs/assets/hero.png" alt="Orbit recording a dashboard: the capture bar, a selected 1920 × 1080 area, and the face cam circle" width="860">
 </p>
 
 <h1 align="center">Orbit</h1>
@@ -19,12 +19,6 @@
   <a href="https://github.com/calebynhan/orbit/releases/latest">Download</a> ·
   <a href="https://calebynhan.github.io/orbit/">Website</a> ·
   <a href="https://github.com/calebynhan/orbit/issues">Issues</a>
-</p>
-
-<br>
-
-<p align="center">
-  <img src="docs/assets/area-select.png" alt="Selecting an area to record, labelled 1920 × 1080" width="720">
 </p>
 
 ## Features

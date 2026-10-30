@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- Rendered to hero.png for the README. Not linked from the site. -->
+<html><head><meta charset="utf-8"><title>Orbit hero</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1440px; height: 900px; overflow: hidden; font-family: Figtree, -apple-system, sans-serif; color: #15181f;
+         background: radial-gradient(1200px 700px at 30% 20%, #4b6fd8 0%, #2b2f6b 55%, #171a3a 100%); position: relative; }
+  .menubar { height: 28px; background: rgba(255,255,255,.14); backdrop-filter: blur(20px); display: flex; align-items: center; padding: 0 16px; gap: 22px; color: #fff; font-size: 13px; font-weight: 500; }
+  .menubar .right { margin-left: auto; display: flex; gap: 16px; align-items: center; font-weight: 400; }
+  .rec { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.35); padding: 3px 9px; border-radius: 999px; font-family: "JetBrains Mono", monospace; font-size: 12px; }
+  .rec i { width: 8px; height: 8px; border-radius: 50%; background: #ff4d55; }
+  .window { position: absolute; left: 220px; top: 96px; width: 1000px; height: 570px; background: #fff; border-radius: 12px; box-shadow: 0 40px 120px rgba(0,0,0,.45); overflow: hidden; display: grid; grid-template-columns: 220px 1fr; }
+  .titlebar { grid-column: 1 / -1; height: 40px; background: #f3f4f7; border-bottom: 1px solid #e3e7ef; display: flex; align-items: center; padding-left: 14px; gap: 8px; }
+  .titlebar i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .titlebar .t { margin-left: 14px; font-size: 13px; color: #5b6271; }
+  .side { background: #fafbfe; border-right: 1px solid #e3e7ef; padding: 18px 14px; display: grid; gap: 8px; align-content: start; font-size: 13.5px; color: #5b6271; }
+  .side b { color: #15181f; font-weight: 600; }
+  .side .sel { background: #e9edf6; border-radius: 7px; padding: 6px 10px; color: #15181f; font-weight: 500; }
+  .side span { padding: 6px 10px; }
+  .main { padding: 36px 48px; }
+  h1 { font-size: 30px; letter-spacing: -.02em; margin-bottom: 8px; }
+  .meta { color: #5b6271; font-size: 14px; margin-bottom: 28px; }
+  .card { border: 1px solid #e3e7ef; border-radius: 12px; padding: 20px 22px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; align-items: center; }
+  .card h3 { font-size: 16px; }
+  .card p { color: #5b6271; font-size: 14px; }
+  .card .btn { padding: 10px 18px; border-radius: 9px; background: #15181f; color: #fff; font-weight: 600; font-size: 14px; grid-column: 2; grid-row: 1 / span 2; }
+  .card .btn.red { background: #e5484d; }
+  .face { position: absolute; left: 990px; top: 470px; width: 220px; height: 220px; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 20px 60px rgba(0,0,0,.45);
+          background: radial-gradient(circle at 50% 36%, #f3cdb4 0 27%, transparent 28%), radial-gradient(circle at 50% 98%, #f3cdb4 0 36%, transparent 37%), linear-gradient(165deg, #ffb86b, #ff6f5a); }
+  .face::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 42% 34%, #2b2320 0 3%, transparent 3.5%), radial-gradient(circle at 58% 34%, #2b2320 0 3%, transparent 3.5%); }
+  .bar { position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); width: 1220px; height: 108px; background: url("toolbar.png") center / contain no-repeat; filter: drop-shadow(0 20px 40px rgba(0,0,0,.4)); border-radius: 12px; }
+  .frame { position: absolute; inset: 64px 150px 208px 150px; border: 2px dashed rgba(255,255,255,.9); border-radius: 4px; }
+  .frame i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+  .frame i:nth-child(1){left:-6px;top:-6px} .frame i:nth-child(2){right:-6px;top:-6px} .frame i:nth-child(3){left:-6px;bottom:-6px} .frame i:nth-child(4){right:-6px;bottom:-6px}
+  .frame i:nth-child(5){left:50%;top:-6px;margin-left:-5px} .frame i:nth-child(6){left:50%;bottom:-6px;margin-left:-5px} .frame i:nth-child(7){left:-6px;top:50%;margin-top:-5px} .frame i:nth-child(8){right:-6px;top:50%;margin-top:-5px}
+  .label { position: absolute; left: 50%; transform: translateX(-50%); bottom: -34px; background: rgba(0,0,0,.75); color: #fff; font: 500 13px "JetBrains Mono", monospace; padding: 5px 11px; border-radius: 6px; }
+</style></head>
+<body>
+  <div class="menubar"><b></b><span>Orbit</span><span>File</span><span>Edit</span><span>View</span>
+    <div class="right"><span class="rec"><i></i>0:42</span><span>Fri 9:41 AM</span></div></div>
+  <div class="frame"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span class="label">1920 × 1080</span></div>
+  <div class="window">
+    <div class="titlebar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">Billing — Acme Dashboard</span></div>
+    <div class="side"><b>Workspace</b><span>Overview</span><span>Customers</span><span class="sel">Billing</span><span>Invoices</span><span>Reports</span><span>Settings</span></div>
+    <div class="main">
+      <h1>Billing</h1>
+      <p class="meta">Plan: Team · Renews Nov 14 · 12 seats</p>
+      <div class="card"><h3>Payment method</h3><p>Visa ending in 4242, expires 09/28</p><span class="btn">Update</span></div>
+      <div class="card"><h3>Usage this month</h3><p>8,420 of 10,000 recordings</p><span class="btn">View</span></div>
+      <div class="card"><h3>Export invoices</h3><p>Download all invoices for the current year as a single PDF</p><span class="btn red">Export</span></div>
+    </div>
+  </div>
+  <div class="face"></div>
+  <div class="bar"></div>
+</body></html>
