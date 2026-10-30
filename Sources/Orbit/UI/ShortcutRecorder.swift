@@ -36,14 +36,14 @@ final class RecorderView: NSView {
         layer?.cornerRadius = 14
         layer?.borderWidth = 1.5
         label.alignment = .center
-        label.font = .monospacedSystemFont(ofSize: 20, weight: .semibold)
+        label.font = .systemFont(ofSize: 34, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
         NSLayoutConstraint.activate([
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
             label.centerYAnchor.constraint(equalTo: centerYAnchor),
             widthAnchor.constraint(greaterThanOrEqualToConstant: 220),
-            heightAnchor.constraint(equalToConstant: 56),
+            heightAnchor.constraint(greaterThanOrEqualToConstant: 56),
         ])
         toolTip = "Click, then press the keys you want to use"
     }
@@ -56,11 +56,10 @@ final class RecorderView: NSView {
 
     func display(_ shortcut: OrbitCore.KeyboardShortcut, recording: Bool) {
         isRecording = recording
-        label.stringValue = recording ? "Press keys…" : shortcut.displayString
+        label.stringValue = recording ? "…" : shortcut.displayString
         // Styled for the dark welcome guide (see Theme).
-        let accent = NSColor(red: 0.31, green: 0.49, blue: 1.0, alpha: 1)
-        label.textColor = recording ? NSColor.white.withAlphaComponent(0.6) : .white
-        layer?.borderColor = (recording ? accent : NSColor.white.withAlphaComponent(0.14)).cgColor
+        label.textColor = recording ? NSColor.white.withAlphaComponent(0.5) : .white
+        layer?.borderColor = NSColor.white.withAlphaComponent(recording ? 0.9 : 0.14).cgColor
         layer?.backgroundColor = NSColor.white.withAlphaComponent(recording ? 0.10 : 0.06).cgColor
     }
 
