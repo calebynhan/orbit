@@ -15,8 +15,8 @@ SIGN_IDENTITY="${SIGN_IDENTITY:--}"
 APP="$ROOT/build/Orbit.app"
 
 cd "$ROOT"
-swift build -c "$CONFIG"
-BIN_DIR="$(swift build -c "$CONFIG" --show-bin-path)"
+swift build -c "$CONFIG" --arch arm64 --arch x86_64
+BIN_DIR="$(swift build -c "$CONFIG" --arch arm64 --arch x86_64 --show-bin-path)"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
