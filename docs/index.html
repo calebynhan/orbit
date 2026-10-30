@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbit — screen recording with your face anywhere, even after you stop</title>
+<meta name="description" content="Orbit is a free, open-source Mac screen recorder. Press ⌘⇧5, put your face in a circle you can drag anywhere, and move it again after recording. No subscription, nothing uploaded.">
+<link rel="canonical" href="https://calebynhan.github.io/orbit/">
+<meta property="og:title" content="Orbit — screen recording with your face anywhere">
+<meta property="og:description" content="Free, open-source Mac screen recorder. Move your face cam after you record. No subscription, nothing uploaded.">
+<meta property="og:image" content="https://calebynhan.github.io/orbit/assets/bubble-path.png">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="wrap nav">
+  <a class="brand" href="./">⏺ Orbit</a>
+  <nav>
+    <a href="#features">Features</a>
+    <a href="#compare">vs Loom</a>
+    <a href="loom-alternative.html">Switching from Loom</a>
+    <a href="https://github.com/calebynhan/orbit">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <p class="eyebrow">Free beta · macOS 15+ · Apple Silicon &amp; Intel</p>
+    <h1>Screen recording with your face anywhere.<br><span>Even after you hit stop.</span></h1>
+    <p class="lede">Press <kbd>⌘⇧5</kbd>, drop your camera into a circle, and drag it wherever you like. Changed your mind after recording? Move it, resize it, or re-record it in the editor. Nothing is uploaded. There is no subscription.</p>
+    <div class="cta">
+      <a class="button primary" href="https://github.com/calebynhan/orbit/releases/latest">Download the free beta</a>
+      <a class="button" href="https://github.com/calebynhan/orbit">View the source</a>
+    </div>
+    <p class="fineprint">Open source under AGPL-3.0. The beta isn't notarized yet, so macOS asks you to approve it once — <a href="#install">here's how</a>.</p>
+    <img class="shot" src="assets/toolbar.png" alt="Orbit's capture bar: Entire Screen, Selected Portion, Face Cam, Mic, System Audio, 1080p · 60fps, Record" width="1522" height="190">
+  </section>
+
+  <section id="features" class="wrap features">
+    <article>
+      <h2>Your face, after the fact</h2>
+      <p>Orbit records the screen and the camera as separate files and remembers where the circle was. In the editor you can replay your path, pin the circle somewhere new, resize it, mirror it, or hide it — then export one MP4.</p>
+      <img src="assets/bubble-path.png" alt="Four frames of an exported video showing the face circle moving along its recorded path" loading="lazy">
+    </article>
+    <article>
+      <h2>Exact 1080p framing</h2>
+      <p>Record the whole screen or draw a frame. The 16:9 lock snaps to exact steps, so a selected area comes out at precisely 1920×1080 at a constant 60 fps — no black bars, no stretching.</p>
+      <img src="assets/area-select.png" alt="A dimmed screen with a draggable frame labelled 1920 × 1080" loading="lazy">
+    </article>
+    <article>
+      <h2>Stays on your Mac</h2>
+      <p>Recordings go to <code>~/Movies/Orbit</code>. There's no account, no upload, and no viewer analytics. If you work with client or patient data, that's the whole point.</p>
+    </article>
+    <article>
+      <h2>Forgot the camera? Add it later</h2>
+      <p>Recorded without your face? The editor plays the video back while it records your camera and mic, then overlays it. Or import a clip you already have.</p>
+    </article>
+  </section>
+
+  <section id="compare" class="wrap compare">
+    <h2>Orbit vs Loom</h2>
+    <table>
+      <thead><tr><th></th><th>Orbit</th><th>Loom Business</th></tr></thead>
+      <tbody>
+        <tr><td>Price</td><td>Free beta; one-time purchase planned</td><td>$18 per user per month</td></tr>
+        <tr><td>Move the face cam after recording</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Where recordings live</td><td>Your Mac</td><td>Loom's cloud</td></tr>
+        <tr><td>Share links &amp; viewer analytics</td><td>No (export an MP4)</td><td>Yes</td></tr>
+        <tr><td>Source code</td><td>Open (AGPL-3.0)</td><td>Closed</td></tr>
+        <tr><td>Platforms</td><td>macOS</td><td>macOS, Windows, web, mobile</td></tr>
+      </tbody>
+    </table>
+    <p class="fineprint">Loom pricing as listed in October 2026. Loom is a trademark of Atlassian; Orbit isn't affiliated with it.</p>
+  </section>
+
+  <section id="install" class="wrap install">
+    <h2>Opening the beta</h2>
+    <p>The beta isn't signed with an Apple Developer ID yet (that's a $99/year fee we'll pay once people want this), so macOS blocks it the first time. One-time fix:</p>
+    <ol>
+      <li>Open the DMG and drag Orbit to Applications, then double-click it. macOS will refuse.</li>
+      <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll down to “Orbit was blocked”, and click <strong>Open Anyway</strong>.</li>
+      <li>Orbit appears in your menu bar (⏺) and asks for Camera, Microphone, and Screen Recording permission.</li>
+      <li>Say yes when Orbit offers to take over <kbd>⌘⇧5</kbd> from the macOS screenshot bar. You can give it back from the menu at any time.</li>
+    </ol>
+  </section>
+
+  <section class="wrap faq">
+    <h2>Questions</h2>
+    <details><summary>Is it really free?</summary><p>The beta is free, and the source code always will be. When Orbit leaves beta, the ready-built app will be a one-time purchase. No subscription.</p></details>
+    <details><summary>Can I share a link like Loom?</summary><p>Not yet. Orbit exports an MP4 you can drop into Slack, email, or any drive. Hosted share links may come later as an optional extra.</p></details>
+    <details><summary>Does it work on Intel Macs?</summary><p>Yes, on macOS 15 Sequoia or later.</p></details>
+    <details><summary>Found a bug or want something?</summary><p><a href="https://github.com/calebynhan/orbit/issues">Open an issue on GitHub</a>. Early feedback decides what gets built.</p></details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>Made by Caleb Han · <a href="https://github.com/calebynhan/orbit">GitHub</a> · <a href="https://github.com/calebynhan/orbit/blob/main/LICENSE">AGPL-3.0</a></p>
+</footer>
+</body>
+</html>
