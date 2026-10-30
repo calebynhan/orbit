@@ -120,6 +120,11 @@ final class EditorModel: ObservableObject {
 
     func setMirrored(_ mirrored: Bool) { apply(overlay.with(mirrored: mirrored)) }
 
+    func setStyle(_ style: BubbleStyle, commit: Bool = true) {
+        BubbleStyleStore.style = style // becomes the default for the next recording too
+        apply(overlay.with(style: style), persist: commit)
+    }
+
     func setPlacement(_ placement: OverlayPlacement) {
         let current = currentBubbleState?.center ?? overlay.fixedCenter
         apply(placement == .fixed ? overlay.with(placement: .fixed).with(fixedCenter: current) : overlay.with(placement: placement))

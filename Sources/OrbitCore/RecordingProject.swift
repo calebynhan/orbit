@@ -16,7 +16,8 @@ public struct OverlaySettings: Codable, Equatable, Sendable {
         placement: .followRecording,
         fixedCenter: CGPoint(x: 0.1, y: 0.82),
         diameterOverride: nil,
-        mirrored: true
+        mirrored: true,
+        style: .default
     )
 
     public let visible: Bool
@@ -25,33 +26,54 @@ public struct OverlaySettings: Codable, Equatable, Sendable {
     /// When set, replaces the recorded size.
     public let diameterOverride: Double?
     public let mirrored: Bool
+    public let style: BubbleStyle
 
-    public init(visible: Bool, placement: OverlayPlacement, fixedCenter: CGPoint, diameterOverride: Double?, mirrored: Bool) {
+    public init(visible: Bool, placement: OverlayPlacement, fixedCenter: CGPoint, diameterOverride: Double?, mirrored: Bool, style: BubbleStyle = .default) {
         self.visible = visible
         self.placement = placement
         self.fixedCenter = fixedCenter
         self.diameterOverride = diameterOverride
         self.mirrored = mirrored
+        self.style = style
+    }
+
+    // Projects saved before `style` existed decode with the default look.
+    private enum CodingKeys: String, CodingKey { case visible, placement, fixedCenter, diameterOverride, mirrored, style }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            visible: try c.decode(Bool.self, forKey: .visible),
+            placement: try c.decode(OverlayPlacement.self, forKey: .placement),
+            fixedCenter: try c.decode(CGPoint.self, forKey: .fixedCenter),
+            diameterOverride: try c.decodeIfPresent(Double.self, forKey: .diameterOverride),
+            mirrored: try c.decode(Bool.self, forKey: .mirrored),
+            style: try c.decodeIfPresent(BubbleStyle.self, forKey: .style) ?? .default
+        )
+    }
+
+    public func with(style: BubbleStyle) -> OverlaySettings {
+        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored, style: style)
     }
 
     public func with(visible: Bool) -> OverlaySettings {
-        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored)
+        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored, style: style)
     }
 
     public func with(placement: OverlayPlacement) -> OverlaySettings {
-        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored)
+        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored, style: style)
     }
 
     public func with(fixedCenter: CGPoint) -> OverlaySettings {
-        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored)
+        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored, style: style)
     }
 
     public func with(diameterOverride: Double?) -> OverlaySettings {
-        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored)
+        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored, style: style)
     }
 
     public func with(mirrored: Bool) -> OverlaySettings {
-        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored)
+        OverlaySettings(visible: visible, placement: placement, fixedCenter: fixedCenter, diameterOverride: diameterOverride, mirrored: mirrored, style: style)
     }
 
     /// Resolved bubble state at a point in the video, or `nil` when hidden.

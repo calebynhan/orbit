@@ -53,7 +53,6 @@ final class BubbleInstruction: NSObject, AVVideoCompositionInstructionProtocol {
 /// Draws the screen frame, then the camera frame cropped into a white-ringed circle.
 final class BubbleCompositor: NSObject, AVVideoCompositing {
     private static let log = Logger(subsystem: "dev.orbit.Orbit", category: "Compositor")
-    private static let ringFraction = 0.035
     private static let ciContext = CIContext(options: [.cacheIntermediates: false])
     private static let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
 
@@ -115,7 +114,7 @@ final class BubbleCompositor: NSObject, AVVideoCompositing {
                 mirrored: settings.mirrored,
                 into: rect
             )
-            image = Self.bubble(camera: camera, in: rect).composited(over: screenScaled)
+            image = Self.bubble(camera: camera, in: rect, style: settings.style).composited(over: screenScaled)
         }
 
         ciContext.render(image.cropped(to: canvas), to: output, bounds: canvas, colorSpace: colorSpace)
@@ -137,28 +136,42 @@ final class BubbleCompositor: NSObject, AVVideoCompositing {
             .transformed(by: CGAffineTransform(translationX: rect.minX, y: rect.minY))
     }
 
-    /// Camera inside a circle with a white ring around it, on a transparent background.
-    private static func bubble(camera: CIImage, in rect: CGRect) -> CIImage {
-        let center = CIVector(x: rect.midX, y: rect.midY)
-        let outer = rect.width / 2
-        let inner = outer * (1 - ringFraction * 2)
-
-        let ring = circleMask(center: center, radius: outer).cropped(to: rect.insetBy(dx: -2, dy: -2))
+    /// Camera inside the chosen shape with an outline around it, on a transparent background.
+    private static func bubble(camera: CIImage, in rect: CGRect, style: BubbleStyle) -> CIImage {
+        let outline = rect.width * style.outlineWidth
+        let inner = rect.insetBy(dx: outline, dy: outline)
         let photo = camera.applyingFilter("CIBlendWithAlphaMask", parameters: [
             kCIInputBackgroundImageKey: CIImage.empty(),
-            kCIInputMaskImageKey: circleMask(center: center, radius: inner),
+            kCIInputMaskImageKey: shapeMask(rect: inner, shape: style.shape),
         ])
+        guard outline > 0 else { return photo }
+        let c = style.outlineColor
+        let ring = shapeMask(rect: rect, shape: style.shape)
+            .applyingFilter("CIColorMatrix", parameters: [
+                "inputRVector": CIVector(x: 0, y: 0, z: 0, w: c.red),
+                "inputGVector": CIVector(x: 0, y: 0, z: 0, w: c.green),
+                "inputBVector": CIVector(x: 0, y: 0, z: 0, w: c.blue),
+                "inputAVector": CIVector(x: 0, y: 0, z: 0, w: c.alpha),
+            ])
         return photo.composited(over: ring)
     }
 
-    /// White inside `radius`, transparent outside, with a 1px antialiased edge.
-    private static func circleMask(center: CIVector, radius: CGFloat) -> CIImage {
-        CIFilter(name: "CIRadialGradient", parameters: [
-            "inputCenter": center,
-            "inputRadius0": max(radius - 1, 0),
-            "inputRadius1": radius,
-            "inputColor0": CIColor.white,
-            "inputColor1": CIColor.clear,
+    /// White inside the shape, transparent outside, antialiased edge.
+    private static func shapeMask(rect: CGRect, shape: BubbleShape) -> CIImage {
+        if shape == .circle {
+            let radius = rect.width / 2
+            return CIFilter(name: "CIRadialGradient", parameters: [
+                "inputCenter": CIVector(x: rect.midX, y: rect.midY),
+                "inputRadius0": max(radius - 1, 0),
+                "inputRadius1": radius,
+                "inputColor0": CIColor.white,
+                "inputColor1": CIColor.clear,
+            ])?.outputImage?.cropped(to: rect.insetBy(dx: -2, dy: -2)) ?? .empty()
+        }
+        return CIFilter(name: "CIRoundedRectangleGenerator", parameters: [
+            "inputExtent": CIVector(cgRect: rect),
+            "inputRadius": rect.width * shape.cornerRadiusFraction,
+            "inputColor": CIColor.white,
         ])?.outputImage ?? .empty()
     }
 }

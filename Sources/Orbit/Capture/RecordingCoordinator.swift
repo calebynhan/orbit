@@ -343,7 +343,7 @@ final class RecordingCoordinator: ObservableObject {
             createdAt: Date(),
             screenFile: "screen.mov",
             camera: cameraSource,
-            overlay: .default.with(placement: cameraSource == nil ? .fixed : .followRecording),
+            overlay: .default.with(placement: cameraSource == nil ? .fixed : .followRecording).with(style: BubbleStyleStore.style),
             bubbleTrack: trackRecorder.finished(),
             framesPerSecond: framesPerSecond
         )

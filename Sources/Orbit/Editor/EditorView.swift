@@ -45,9 +45,10 @@ private struct PreviewArea: View {
 
     private func handle(for state: BubbleState, in videoRect: CGRect) -> some View {
         let rect = OverlayGeometry.viewRect(for: state, videoRect: videoRect)
-        return Circle()
+        let radius = rect.width * model.overlay.style.shape.cornerRadiusFraction
+        return RoundedRectangle(cornerRadius: radius, style: .continuous)
             .strokeBorder(Color.white.opacity(isHovering || dragStartCenter != nil ? 0.9 : 0.25), style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
-            .contentShape(Circle())
+            .contentShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
             .frame(width: rect.width, height: rect.height)
             .position(x: rect.midX, y: rect.midY)
             .onHover { isHovering = $0 }
@@ -147,6 +148,7 @@ private struct OverlayControls: View {
         VStack(alignment: .leading, spacing: 12) {
             if model.hasCamera {
                 bubbleSettings
+                styleSettings
             } else {
                 Text("No face cam yet. Record one while this video plays, or add a clip you already have.")
                     .foregroundStyle(.secondary)
@@ -186,7 +188,31 @@ private struct OverlayControls: View {
 
             Toggle("Mirror", isOn: Binding(get: { model.overlay.mirrored }, set: { model.setMirrored($0) }))
         }
-        .disabled(!model.overlay.visible && false)
+    }
+
+    private var styleSettings: some View {
+        HStack(spacing: 18) {
+            Picker("Shape", selection: Binding(get: { model.overlay.style.shape }, set: { model.setStyle(model.overlay.style.with(shape: $0)) })) {
+                ForEach(BubbleShape.allCases, id: \.self) { Text($0.label).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 220)
+
+            HStack {
+                Text("Outline")
+                Slider(
+                    value: Binding(get: { model.overlay.style.outlineWidth }, set: { model.setStyle(model.overlay.style.with(outlineWidth: $0), commit: false) }),
+                    in: 0...BubbleStyle.maxOutlineWidth,
+                    onEditingChanged: { editing in if !editing { model.setStyle(model.overlay.style) } }
+                )
+                .frame(width: 140)
+            }
+
+            ColorPicker("Color", selection: Binding(
+                get: { Color(nsColor: model.overlay.style.outlineColor.nsColor) },
+                set: { model.setStyle(model.overlay.style.with(outlineColor: RGBAColor(NSColor($0)))) }
+            ), supportsOpacity: false)
+        }
     }
 
     @ViewBuilder
