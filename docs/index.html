@@ -2,98 +2,204 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Orbit — screen recording with your face anywhere, even after you stop</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Orbit — move your face cam after you stop recording</title>
 <meta name="description" content="Orbit is a free, open-source Mac screen recorder. Press ⌘⇧5, put your face in a circle you can drag anywhere, and move it again after recording. No subscription, nothing uploaded.">
 <link rel="canonical" href="https://calebynhan.github.io/orbit/">
-<meta property="og:title" content="Orbit — screen recording with your face anywhere">
-<meta property="og:description" content="Free, open-source Mac screen recorder. Move your face cam after you record. No subscription, nothing uploaded.">
-<meta property="og:image" content="https://calebynhan.github.io/orbit/assets/bubble-path.png">
+<meta property="og:title" content="Orbit — move your face cam after you stop recording">
+<meta property="og:description" content="Free, open-source Mac screen recorder. The face cam stays separate, so you can move it after recording. No subscription, nothing uploaded.">
+<meta property="og:image" content="https://calebynhan.github.io/orbit/assets/area-select.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
 <header class="wrap nav">
-  <a class="brand" href="./">⏺ Orbit</a>
+  <a class="brand" href="./"><span class="dot"></span>Orbit</a>
   <nav>
-    <a href="#features">Features</a>
+    <a href="#features">What it does</a>
     <a href="#compare">vs Loom</a>
-    <a href="loom-alternative.html">Switching from Loom</a>
+    <a href="loom-alternative.html">Leaving Loom</a>
     <a href="https://github.com/calebynhan/orbit">GitHub</a>
   </nav>
 </header>
 
-<main>
-  <section class="wrap hero">
-    <p class="eyebrow">Free beta · macOS 15+ · Apple Silicon &amp; Intel</p>
-    <h1>Screen recording with your face anywhere.<br><span>Even after you hit stop.</span></h1>
-    <p class="lede">Press <kbd>⌘⇧5</kbd>, drop your camera into a circle, and drag it wherever you like. Changed your mind after recording? Move it, resize it, or re-record it in the editor. Nothing is uploaded. There is no subscription.</p>
-    <div class="cta">
-      <a class="button primary" href="https://github.com/calebynhan/orbit/releases/latest">Download the free beta</a>
-      <a class="button" href="https://github.com/calebynhan/orbit">View the source</a>
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Free beta · macOS 15 · Apple Silicon and Intel</p>
+      <h1>Your face covers the button. <em>Move it after you stop.</em></h1>
+      <p class="lede">Orbit is a Mac screen recorder with a face-cam circle you can drag anywhere, during the recording or after it. Press <kbd>⌘⇧5</kbd> like the macOS screenshot bar. Nothing is uploaded, and there is no subscription.</p>
+      <div class="cta">
+        <a class="button primary" href="https://github.com/calebynhan/orbit/releases/latest"><span class="dot"></span>Download the beta</a>
+        <a class="button" href="https://github.com/calebynhan/orbit">Read the source</a>
+      </div>
+      <p class="fine">Open source, AGPL-3.0. The beta isn't notarized yet, so macOS asks you to approve it once. <a href="#install">How to open it</a>.</p>
     </div>
-    <p class="fineprint">Open source under AGPL-3.0. The beta isn't notarized yet, so macOS asks you to approve it once — <a href="#install">here's how</a>.</p>
-    <img class="shot" src="assets/toolbar.png" alt="Orbit's capture bar: Entire Screen, Selected Portion, Face Cam, Mic, System Audio, 1080p · 60fps, Record" width="1522" height="190">
+
+    <div class="demo" id="demo" data-state="recording">
+      <div class="demo-stage" id="stage" tabindex="0" aria-label="Mock recording. Drag the face circle anywhere; it still moves after you press Stop.">
+        <div class="demo-window" aria-hidden="true">
+          <div class="demo-titlebar"><i></i><i></i><i></i></div>
+          <div class="demo-doc"><b style="width:62%"></b><b style="width:84%"></b><b style="width:48%"></b><b style="width:76%"></b><span class="btn"></span></div>
+        </div>
+        <div class="demo-pill"><span class="dot"></span><span id="pill-text">REC 0:07</span></div>
+        <div class="demo-face" id="face" aria-hidden="true"></div>
+      </div>
+      <div class="demo-controls">
+        <button id="toggle" aria-pressed="true">Stop</button>
+        <span class="demo-hint" id="hint">Drag the circle off the button. Then press Stop and drag it again.</span>
+      </div>
+    </div>
   </section>
 
-  <section id="features" class="wrap features">
-    <article>
-      <h2>Your face, after the fact</h2>
-      <p>Orbit records the screen and the camera as separate files and remembers where the circle was. In the editor you can replay your path, pin the circle somewhere new, resize it, mirror it, or hide it — then export one MP4.</p>
-      <img src="assets/bubble-path.png" alt="Four frames of an exported video showing the face circle moving along its recorded path" loading="lazy">
-    </article>
-    <article>
-      <h2>Exact 1080p framing</h2>
-      <p>Record the whole screen or draw a frame. The 16:9 lock snaps to exact steps, so a selected area comes out at precisely 1920×1080 at a constant 60 fps — no black bars, no stretching.</p>
-      <img src="assets/area-select.png" alt="A dimmed screen with a draggable frame labelled 1920 × 1080" loading="lazy">
-    </article>
-    <article>
-      <h2>Stays on your Mac</h2>
-      <p>Recordings go to <code>~/Movies/Orbit</code>. There's no account, no upload, and no viewer analytics. If you work with client or patient data, that's the whole point.</p>
-    </article>
-    <article>
-      <h2>Forgot the camera? Add it later</h2>
-      <p>Recorded without your face? The editor plays the video back while it records your camera and mic, then overlays it. Or import a clip you already have.</p>
-    </article>
+  <div class="frame">
+    <span class="h1"></span><span class="h2"></span>
+    <section id="features">
+      <div class="section-head">
+        <h2>The screen and the camera are two files. That changes what you can fix.</h2>
+        <p>Most recorders burn the face circle into the video. Orbit keeps the camera separate and remembers where the circle was, so the editor can put it anywhere.</p>
+      </div>
+      <div class="features">
+        <article class="feature">
+          <span class="num">AFTER RECORDING</span>
+          <h3>Replay your path, or pin it somewhere new</h3>
+          <p>Drag the circle in the preview to move it. Resize, mirror, or hide it. Export one MP4 when it looks right.</p>
+        </article>
+        <article class="feature">
+          <span class="num">EXACT FRAMING</span>
+          <h3>Selected area at a true 1920 × 1080</h3>
+          <p>Record the whole screen or draw a frame. The 16:9 lock snaps in exact steps, so 1080p means 1920 × 1080 at a constant 60 fps, with no black bars.</p>
+          <img src="assets/area-select.png" alt="A dimmed screen with a draggable selection frame labelled 1920 × 1080" loading="lazy" width="1600" height="1000">
+        </article>
+        <article class="feature">
+          <span class="num">LOCAL</span>
+          <h3>Nothing leaves your Mac</h3>
+          <p>Recordings go to <code>~/Movies/Orbit</code>. No account, no upload, no viewer tracking. If the screen shows client or patient data, that's the point.</p>
+        </article>
+        <article class="feature">
+          <span class="num">FORGOT THE CAMERA?</span>
+          <h3>Add your face afterwards</h3>
+          <p>The editor plays the recording back while it records your camera and mic, then overlays it. Or import a clip you already have.</p>
+        </article>
+      </div>
+    </section>
+    <span class="frame-label">1920 × 1080</span>
+  </div>
+
+  <section class="bar-band">
+    <div class="section-head">
+      <h2>The bar you already know, plus one button</h2>
+      <p>Press <kbd>⌘⇧5</kbd>. Orbit offers to take the shortcut over from macOS, and gives it back from the menu whenever you like. <kbd>⌘⇧3</kbd> and <kbd>⌘⇧4</kbd> keep working.</p>
+    </div>
+    <img src="assets/toolbar.png" alt="Orbit's capture bar: Entire Screen, Selected Portion, Face Cam, Mic, System Audio, 1080p · 60fps, and Record" width="1220" height="108">
+    <p class="caption">Entire Screen · Selected Portion · Face Cam · Mic · System Audio · resolution and frame rate · Record</p>
   </section>
 
-  <section id="compare" class="wrap compare">
-    <h2>Orbit vs Loom</h2>
-    <table>
-      <thead><tr><th></th><th>Orbit</th><th>Loom Business</th></tr></thead>
-      <tbody>
-        <tr><td>Price</td><td>Free beta; one-time purchase planned</td><td>$18 per user per month</td></tr>
-        <tr><td>Move the face cam after recording</td><td>Yes</td><td>No</td></tr>
-        <tr><td>Where recordings live</td><td>Your Mac</td><td>Loom's cloud</td></tr>
-        <tr><td>Share links &amp; viewer analytics</td><td>No (export an MP4)</td><td>Yes</td></tr>
-        <tr><td>Source code</td><td>Open (AGPL-3.0)</td><td>Closed</td></tr>
-        <tr><td>Platforms</td><td>macOS</td><td>macOS, Windows, web, mobile</td></tr>
-      </tbody>
-    </table>
-    <p class="fineprint">Loom pricing as listed in October 2026. Loom is a trademark of Atlassian; Orbit isn't affiliated with it.</p>
+  <section id="compare" class="compare">
+    <div class="section-head">
+      <h2>Orbit next to Loom</h2>
+      <p>Loom is good at sharing links and tracking views. Orbit is good at recording and staying out of the cloud. Pick by what you need.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col">Orbit</th><th scope="col">Loom Business</th></tr></thead>
+        <tbody>
+          <tr><td>Price</td><td class="yes">Free beta; one-time purchase planned</td><td>$18 per user per month</td></tr>
+          <tr><td>Move the face cam after recording</td><td class="yes">Yes</td><td>No</td></tr>
+          <tr><td>Where recordings live</td><td class="yes">Your Mac</td><td>Loom's cloud</td></tr>
+          <tr><td>Share links and viewer analytics</td><td>No. Export an MP4.</td><td>Yes</td></tr>
+          <tr><td>Source code</td><td class="yes">Open, AGPL-3.0</td><td>Closed</td></tr>
+          <tr><td>Platforms</td><td>macOS</td><td>macOS, Windows, web, mobile</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Loom pricing as listed in October 2026. Loom is a trademark of Atlassian. Orbit isn't affiliated with either.</p>
   </section>
 
-  <section id="install" class="wrap install">
-    <h2>Opening the beta</h2>
-    <p>The beta isn't signed with an Apple Developer ID yet (that's a $99/year fee we'll pay once people want this), so macOS blocks it the first time. One-time fix:</p>
-    <ol>
-      <li>Open the DMG and drag Orbit to Applications, then double-click it. macOS will refuse.</li>
-      <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll down to “Orbit was blocked”, and click <strong>Open Anyway</strong>.</li>
-      <li>Orbit appears in your menu bar (⏺) and asks for Camera, Microphone, and Screen Recording permission.</li>
-      <li>Say yes when Orbit offers to take over <kbd>⌘⇧5</kbd> from the macOS screenshot bar. You can give it back from the menu at any time.</li>
+  <section id="install" class="install">
+    <div class="section-head">
+      <h2>Opening the beta</h2>
+      <p>It isn't signed with an Apple Developer ID yet, so macOS blocks it the first time. This takes a minute and happens once.</p>
+    </div>
+    <ol class="steps">
+      <li><p><strong>Drag Orbit to Applications</strong> and double-click it. macOS says it can't be opened.</p></li>
+      <li><p>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll to “Orbit was blocked”, and click <strong>Open Anyway</strong>.</p></li>
+      <li><p>Orbit appears in the menu bar and asks for <strong>Camera, Microphone, and Screen Recording</strong>. Everything stays on your Mac.</p></li>
+      <li><p>Say yes when it offers to <strong>take over <kbd>⌘⇧5</kbd></strong>. You can give it back from the menu.</p></li>
     </ol>
   </section>
 
-  <section class="wrap faq">
-    <h2>Questions</h2>
-    <details><summary>Is it really free?</summary><p>The beta is free, and the source code always will be. When Orbit leaves beta, the ready-built app will be a one-time purchase. No subscription.</p></details>
-    <details><summary>Can I share a link like Loom?</summary><p>Not yet. Orbit exports an MP4 you can drop into Slack, email, or any drive. Hosted share links may come later as an optional extra.</p></details>
-    <details><summary>Does it work on Intel Macs?</summary><p>Yes, on macOS 15 Sequoia or later.</p></details>
-    <details><summary>Found a bug or want something?</summary><p><a href="https://github.com/calebynhan/orbit/issues">Open an issue on GitHub</a>. Early feedback decides what gets built.</p></details>
+  <section class="faq">
+    <div class="section-head">
+      <h2>Questions</h2>
+    </div>
+    <div>
+      <details><summary>Is it free?</summary><p>The beta is free, and the source always will be. When Orbit leaves beta, the ready-built app will be a one-time purchase. No subscription.</p></details>
+      <details><summary>Can I share a link like Loom?</summary><p>Not yet. Orbit exports an MP4 you can drop into Slack, email, or a shared drive. Hosted links may come later as an optional extra.</p></details>
+      <details><summary>Which Macs?</summary><p>Apple Silicon and Intel, on macOS 15 Sequoia or later.</p></details>
+      <details><summary>Something broke.</summary><p><a href="https://github.com/calebynhan/orbit/issues">Open an issue</a>. Early feedback decides what gets built next.</p></details>
+    </div>
   </section>
 </main>
 
 <footer class="wrap">
-  <p>Made by Caleb Han · <a href="https://github.com/calebynhan/orbit">GitHub</a> · <a href="https://github.com/calebynhan/orbit/blob/main/LICENSE">AGPL-3.0</a></p>
+  <span>Made by Caleb Han</span>
+  <span><a href="https://github.com/calebynhan/orbit">GitHub</a> · <a href="https://github.com/calebynhan/orbit/blob/main/LICENSE">AGPL-3.0</a> · <a href="loom-alternative.html">Leaving Loom</a></span>
 </footer>
+
+<script>
+(() => {
+  const demo = document.getElementById('demo');
+  const stage = document.getElementById('stage');
+  const face = document.getElementById('face');
+  const toggle = document.getElementById('toggle');
+  const pill = document.getElementById('pill-text');
+  const hint = document.getElementById('hint');
+  let recording = true, seconds = 7, timer = null, drag = null;
+
+  const tick = () => { seconds += 1; pill.textContent = 'REC ' + Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0'); };
+  const start = () => { timer = setInterval(tick, 1000); };
+  start();
+
+  toggle.addEventListener('click', () => {
+    recording = !recording;
+    demo.dataset.state = recording ? 'recording' : 'stopped';
+    toggle.textContent = recording ? 'Stop' : 'Record again';
+    toggle.setAttribute('aria-pressed', String(recording));
+    if (recording) { seconds = 0; tick(); start(); hint.textContent = 'Drag the circle off the button. Then press Stop and drag it again.'; }
+    else { clearInterval(timer); pill.textContent = 'STOPPED · still movable'; hint.textContent = 'Stopped. The circle still moves, because the camera was never burned in.'; }
+  });
+
+  const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+  const place = (x, y) => {
+    const r = stage.getBoundingClientRect(), size = face.offsetWidth;
+    face.style.left = clamp(x - r.left - drag.dx, 0, r.width - size) + 'px';
+    face.style.top = clamp(y - r.top - drag.dy, 0, r.height - size) + 'px';
+  };
+  face.addEventListener('pointerdown', (e) => {
+    const f = face.getBoundingClientRect();
+    drag = { dx: e.clientX - f.left, dy: e.clientY - f.top };
+    face.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  face.addEventListener('pointermove', (e) => { if (drag) place(e.clientX, e.clientY); });
+  const end = () => { drag = null; };
+  face.addEventListener('pointerup', end);
+  face.addEventListener('pointercancel', end);
+
+  // Keyboard: arrow keys move the circle when the stage is focused.
+  stage.addEventListener('keydown', (e) => {
+    const step = e.shiftKey ? 24 : 8, k = e.key;
+    if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(k)) return;
+    e.preventDefault();
+    const f = face.getBoundingClientRect();
+    drag = { dx: 0, dy: 0 };
+    place(f.left + (k === 'ArrowRight' ? step : k === 'ArrowLeft' ? -step : 0), f.top + (k === 'ArrowDown' ? step : k === 'ArrowUp' ? -step : 0));
+    drag = null;
+  });
+})();
+</script>
 </body>
 </html>
