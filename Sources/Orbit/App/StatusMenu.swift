@@ -6,13 +6,21 @@ final class StatusMenu: NSObject {
     private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let coordinator: RecordingCoordinator
     private let openRecording: () -> Void
+    private let setOrbitOwnsShortcut: (Bool) -> Void
     private var clock: Timer?
 
-    init(coordinator: RecordingCoordinator, openRecording: @escaping () -> Void) {
+    /// - Parameter setOrbitOwnsShortcut: `true` = take ⌘⇧5 from macOS, `false` = give it back.
+    init(coordinator: RecordingCoordinator, openRecording: @escaping () -> Void, setOrbitOwnsShortcut: @escaping (Bool) -> Void) {
         self.coordinator = coordinator
         self.openRecording = openRecording
+        self.setOrbitOwnsShortcut = setOrbitOwnsShortcut
         super.init()
         showIdle()
+    }
+
+    /// Rebuilds the idle menu, e.g. after the ⌘⇧5 owner changes.
+    func refresh() {
+        if !coordinator.isRecording, !coordinator.isBusy { showIdle() }
     }
 
     func update(for phase: RecordingCoordinator.Phase) {
@@ -69,11 +77,15 @@ final class StatusMenu: NSObject {
         menu.addItem(NSMenuItem(title: "Open Recording…", action: #selector(open), keyEquivalent: "o"))
         menu.addItem(NSMenuItem(title: "Show Recordings in Finder", action: #selector(revealRecordings), keyEquivalent: ""))
 
+        menu.addItem(.separator())
         if SystemShortcut.macOSOwnsCommandShift5 {
-            menu.addItem(.separator())
-            let warning = NSMenuItem(title: "⚠︎ macOS is using ⌘⇧5 — Fix in Keyboard Shortcuts…", action: #selector(openShortcutSettings), keyEquivalent: "")
-            warning.toolTip = "System Settings → Keyboard → Keyboard Shortcuts → Screenshots → turn off “Screenshot and recording options”."
-            menu.addItem(warning)
+            let takeOver = NSMenuItem(title: "⚠︎ ⌘⇧5 Opens macOS’s Toolbar — Use It for Orbit…", action: #selector(takeOverShortcut), keyEquivalent: "")
+            takeOver.toolTip = "Turns off macOS’s “Screenshot and recording options” shortcut so ⌘⇧5 opens Orbit. ⌘⇧3 and ⌘⇧4 keep working."
+            menu.addItem(takeOver)
+        } else {
+            let giveBack = NSMenuItem(title: "Give ⌘⇧5 Back to macOS", action: #selector(restoreShortcut), keyEquivalent: "")
+            giveBack.toolTip = "Turns macOS’s screenshot toolbar shortcut back on."
+            menu.addItem(giveBack)
         }
 
         menu.addItem(.separator())
@@ -93,9 +105,8 @@ final class StatusMenu: NSObject {
         NSWorkspace.shared.open(root)
     }
 
-    @objc private func openShortcutSettings() {
-        if let url = SettingsPane.keyboardShortcuts.url { NSWorkspace.shared.open(url) }
-    }
+    @objc private func takeOverShortcut() { setOrbitOwnsShortcut(true) }
+    @objc private func restoreShortcut() { setOrbitOwnsShortcut(false) }
 
     private static func format(_ seconds: TimeInterval) -> String {
         let total = Int(seconds)

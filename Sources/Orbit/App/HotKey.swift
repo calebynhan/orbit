@@ -1,5 +1,7 @@
 import Carbon.HIToolbox
 import Foundation
+import OrbitCore
+import os
 
 /// A system-wide keyboard shortcut via Carbon's `RegisterEventHotKey` (no Accessibility permission needed).
 final class HotKey {
@@ -41,18 +43,53 @@ final class HotKey {
     }
 }
 
-/// Detects whether macOS still owns ⌘⇧5 ("Screenshot and recording options"), which would
-/// swallow the shortcut before Orbit sees it.
+/// macOS's own ⌘⇧5 ("Screenshot and recording options") is handled before any app sees the
+/// keystroke. For ⌘⇧5 to open Orbit instead, that macOS shortcut has to be switched off — the
+/// same checkbox as System Settings → Keyboard → Keyboard Shortcuts → Screenshots.
 enum SystemShortcut {
-    private static let screenshotOptionsHotKeyID = "184"
+    private static let domain = "com.apple.symbolichotkeys" as CFString
+    private static let key = "AppleSymbolicHotKeys" as CFString
+    private static let applySettingsTool = "/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings"
+    private static let log = Logger(subsystem: "dev.orbit.Orbit", category: "Shortcut")
+
+    enum ShortcutError: LocalizedError {
+        case didNotApply
+
+        var errorDescription: String? {
+            "macOS didn’t accept the change. Turn it off yourself in System Settings → Keyboard → "
+                + "Keyboard Shortcuts… → Screenshots → “Screenshot and recording options”."
+        }
+    }
 
     static var macOSOwnsCommandShift5: Bool {
-        guard
-            let hotKeys = CFPreferencesCopyAppValue("AppleSymbolicHotKeys" as CFString, "com.apple.symbolichotkeys" as CFString) as? [String: Any],
-            let entry = hotKeys[screenshotOptionsHotKeyID] as? [String: Any]
-        else {
-            return true // never customized → enabled by default
+        ScreenshotShortcut.isEnabled(in: readHotKeys())
+    }
+
+    /// Turns macOS's ⌘⇧5 on or off and applies it immediately (no logout needed).
+    static func setMacOSShortcut(enabled: Bool) throws {
+        let updated = ScreenshotShortcut.setting(enabled: enabled, in: readHotKeys() ?? [:])
+        CFPreferencesSetAppValue(key, updated as CFDictionary, domain)
+        guard CFPreferencesAppSynchronize(domain), macOSOwnsCommandShift5 == enabled else {
+            throw ShortcutError.didNotApply
         }
-        return (entry["enabled"] as? Bool) ?? true
+        applyToRunningSession()
+    }
+
+    private static func readHotKeys() -> [String: Any]? {
+        CFPreferencesAppSynchronize(domain)
+        return CFPreferencesCopyAppValue(key, domain) as? [String: Any]
+    }
+
+    /// Asks the system to reload keyboard shortcuts now rather than at next login.
+    private static func applyToRunningSession() {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: applySettingsTool)
+        process.arguments = ["-u"]
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            log.error("Couldn't reload shortcuts now; they apply after logging out: \(error.localizedDescription)")
+        }
     }
 }

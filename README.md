@@ -41,11 +41,11 @@ Orbit runs from the menu bar (⏺ icon). On first use macOS asks for **Camera**,
 
 ### Using ⌘⇧5
 
-macOS reserves ⌘⇧5 for its own screenshot toolbar, so its shortcut wins until you turn it off:
+macOS handles ⌘⇧5 itself (its screenshot toolbar) before any app sees the keystroke. On first launch Orbit asks **"Make ⌘⇧5 open Orbit?"** If you click **Use ⌘⇧5 for Orbit**, it turns off macOS's "Screenshot and recording options" shortcut and applies the change right away, so ⌘⇧5 opens Orbit's toolbar instead. ⌘⇧3 and ⌘⇧4 screenshots keep working.
 
-**System Settings → Keyboard → Keyboard Shortcuts… → Screenshots → uncheck "Screenshot and recording options"**
-
-The Orbit menu shows a reminder (with a link to that pane) while macOS still owns the shortcut. You can always start a recording from the menu bar icon instead.
+- To undo it: Orbit menu → **Give ⌘⇧5 Back to macOS**.
+- If you clicked "Not Now", you can switch later from the Orbit menu.
+- You can also do it yourself in System Settings → Keyboard → Keyboard Shortcuts… → Screenshots.
 
 ## Development
 
