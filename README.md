@@ -75,4 +75,4 @@ swift test           # unit tests for the timeline, geometry, and project file l
 
 ## License
 
-MIT
+AGPL-3.0. The source is free to use and modify; if you distribute a modified version or run it as a service, you must share your changes under the same license. A ready-built, signed app is sold separately.
