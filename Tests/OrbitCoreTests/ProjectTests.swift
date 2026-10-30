@@ -111,6 +111,58 @@ final class RecordingProjectTests: XCTestCase {
         }
     }
 
+    func testLoadRefusesFilesOutsideTheFolder() throws {
+        for (screen, camera) in [("../secret.mov", "camera.mov"), ("screen.mov", "/etc/passwd"), ("screen.mov", ".."), ("", "camera.mov")] {
+            let folder = try makeTemporaryFolder()
+            defer { try? FileManager.default.removeItem(at: folder) }
+            let json = """
+            {"version":1,"createdAt":"2026-10-30T14:00:00Z","screenFile":\(quoted(screen)),
+             "camera":{"file":\(quoted(camera)),"offset":0,"includeAudio":false},
+             "overlay":{"visible":true,"placement":"fixed","fixedCenter":[0.1,0.8],"mirrored":true},
+             "bubbleTrack":{"keyframes":[]}}
+            """
+            try Data(json.utf8).write(to: folder.appendingPathComponent(RecordingProject.fileName))
+            XCTAssertThrowsError(try RecordingProject.load(from: folder), "\(screen) / \(camera)") { error in
+                guard let projectError = error as? RecordingProjectError, case .unsafeFileReference = projectError else {
+                    return XCTFail("Expected unsafeFileReference, got \(error)")
+                }
+            }
+        }
+    }
+
+    func testFileURLRefusesSymlinkLeavingTheFolder() throws {
+        let folder = try makeTemporaryFolder()
+        let outside = try makeTemporaryFolder()
+        defer {
+            try? FileManager.default.removeItem(at: folder)
+            try? FileManager.default.removeItem(at: outside)
+        }
+        let target = outside.appendingPathComponent("private.mov")
+        try Data().write(to: target)
+        try FileManager.default.createSymbolicLink(at: folder.appendingPathComponent("screen.mov"), withDestinationURL: target)
+
+        XCTAssertThrowsError(try RecordingProject.fileURL("screen.mov", in: folder))
+        XCTAssertEqual(try RecordingProject.fileURL("camera.mov", in: folder).lastPathComponent, "camera.mov")
+    }
+
+    func testLoadRefusesUnsupportedFrameRate() throws {
+        let folder = try makeTemporaryFolder()
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let project = RecordingProject(createdAt: Date(), screenFile: "screen.mov", camera: nil, overlay: .default, bubbleTrack: BubbleTrack(), framesPerSecond: 0)
+        try project.save(to: folder)
+        XCTAssertThrowsError(try RecordingProject.load(from: folder))
+    }
+
+    private func makeTemporaryFolder() throws -> URL {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder
+    }
+
+    private func quoted(_ string: String) -> String {
+        String(decoding: try! JSONEncoder().encode(string), as: UTF8.self)
+    }
+
     func testWithCameraReturnsUpdatedCopy() {
         let project = RecordingProject(createdAt: Date(), screenFile: "screen.mov", camera: nil, overlay: .default, bubbleTrack: BubbleTrack())
         let updated = project.with(camera: CameraSource(file: "take.mov", offset: 1, includeAudio: true))

@@ -104,7 +104,7 @@ final class StatusMenu: NSObject {
 
     @objc private func revealRecordings() {
         let root = RecordingCoordinator.recordingsRoot
-        try? FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try? RecordingCoordinator.makePrivateFolder(root)
         NSWorkspace.shared.open(root)
     }
 

@@ -23,5 +23,11 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN_DIR/Orbit" "$APP/Contents/MacOS/Orbit"
 cp "$ROOT/Resources/Info.plist" "$APP/Contents/Info.plist"
 
-codesign --force --sign "$SIGN_IDENTITY" "$APP"
+# Hardened runtime stops other processes from injecting code (DYLD_* variables, unsigned
+# libraries, debugger attach) into an app that holds camera, mic, and screen access.
+TIMESTAMP="--timestamp"
+[[ "$SIGN_IDENTITY" == "-" ]] && TIMESTAMP="--timestamp=none" # ad-hoc signatures can't be timestamped
+codesign --force --options runtime "$TIMESTAMP" \
+  --entitlements "$ROOT/Resources/Orbit.entitlements" --sign "$SIGN_IDENTITY" "$APP"
+codesign --verify --strict "$APP"
 echo "Built $APP"

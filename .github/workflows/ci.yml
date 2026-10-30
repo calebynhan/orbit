@@ -5,12 +5,19 @@ on:
     branches: [main]
   pull_request:
 
+# Read-only token: CI only builds and tests.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
-      - uses: maxim-lobanov/setup-xcode@v1
+      # Actions are pinned to commit SHAs so a moved tag can't change what runs here.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: "16.4"
       - run: swift build

@@ -23,7 +23,7 @@ struct EditableComposition {
 
 enum CompositionBuilder {
     static func build(project: RecordingProject, folder: URL, store: OverlaySettingsStore) async throws -> EditableComposition {
-        let screenAsset = AVURLAsset(url: folder.appendingPathComponent(project.screenFile))
+        let screenAsset = try AVURLAsset(url: RecordingProject.fileURL(project.screenFile, in: folder))
         guard let screenVideo = try await screenAsset.loadTracks(withMediaType: .video).first else {
             throw CompositionError.missingScreenVideo
         }
@@ -74,7 +74,7 @@ enum CompositionBuilder {
         into composition: AVMutableComposition
     ) async throws -> (trackID: CMPersistentTrackID, transform: CGAffineTransform, timeRange: CMTimeRange)? {
         guard let source else { return nil }
-        let asset = AVURLAsset(url: folder.appendingPathComponent(source.file))
+        let asset = try AVURLAsset(url: RecordingProject.fileURL(source.file, in: folder))
         guard let video = try await asset.loadTracks(withMediaType: .video).first else { return nil }
         let (range, transform) = try await video.load(.timeRange, .preferredTransform)
         guard let placement = CameraPlacement.compute(

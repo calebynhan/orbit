@@ -41,6 +41,8 @@
 2. First open: System Settings → Privacy & Security → **Open Anyway**. (Beta isn't notarized yet.)
 3. Orbit lives in the menu bar. Follow the welcome guide.
 
+To check your download, compare `shasum -a 256 Orbit-*.dmg` with the `.sha256` file on the release page.
+
 macOS 15 or later. Apple Silicon and Intel.
 
 ## Build
@@ -66,6 +68,10 @@ Sources/Orbit/Editor  preview, Core Image compositor, export
 ## Contributing
 
 Issues and pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Security
+
+Report vulnerabilities privately. See [SECURITY.md](SECURITY.md).
 
 ## License
 

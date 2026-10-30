@@ -40,4 +40,11 @@ fi
 
 hdiutil create -quiet -volname "$VOLUME" -srcfolder "$STAGING" -ov -format UDZO "$DMG"
 rm -rf "$STAGING"
+if [[ "${SIGN_IDENTITY:--}" != "-" ]]; then
+  codesign --force --timestamp --sign "$SIGN_IDENTITY" "$DMG"
+fi
+
+# Publish this next to the DMG so people can check their download wasn't swapped.
+(cd "$(dirname "$DMG")" && shasum -a 256 "$(basename "$DMG")" > "$(basename "$DMG").sha256")
 echo "Built $DMG ($(du -h "$DMG" | cut -f1))"
+echo "SHA-256: $(cut -d' ' -f1 "$DMG.sha256")"

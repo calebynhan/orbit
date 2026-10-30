@@ -82,11 +82,13 @@ public struct CameraSource: Codable, Equatable, Sendable {
 public enum RecordingProjectError: Error, Equatable, LocalizedError {
     case notAProject(URL)
     case unreadable(URL, String)
+    case unsafeFileReference(String)
 
     public var errorDescription: String? {
         switch self {
         case .notAProject(let url): "“\(url.lastPathComponent)” isn’t an Orbit recording (no project.json)."
         case .unreadable(let url, let reason): "Couldn’t read “\(url.lastPathComponent)”: \(reason)"
+        case .unsafeFileReference(let name): "This recording points at a file outside its folder (“\(name)”), so Orbit won’t open it."
         }
     }
 }
@@ -96,6 +98,8 @@ public enum RecordingProjectError: Error, Equatable, LocalizedError {
 public struct RecordingProject: Codable, Equatable, Sendable {
     public static let fileName = "project.json"
     public static let currentVersion = 1
+    /// Frame rates accepted from `project.json`; anything else is refused at load.
+    public static let supportedFrameRates = 1...240
 
     public let version: Int
     public let createdAt: Date
@@ -142,13 +146,40 @@ public struct RecordingProject: Codable, Equatable, Sendable {
     public static func load(from folder: URL) throws -> RecordingProject {
         let url = folder.appendingPathComponent(fileName)
         guard FileManager.default.fileExists(atPath: url.path) else { throw RecordingProjectError.notAProject(folder) }
+        let project: RecordingProject
         do {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
-            return try decoder.decode(RecordingProject.self, from: Data(contentsOf: url))
+            project = try decoder.decode(RecordingProject.self, from: Data(contentsOf: url))
         } catch {
             throw RecordingProjectError.unreadable(url, error.localizedDescription)
         }
+        try project.validate(in: folder)
+        return project
+    }
+
+    /// A recording folder can come from someone else (a shared zip, a synced drive), so check
+    /// everything `project.json` points at before any of it is opened.
+    public func validate(in folder: URL) throws {
+        _ = try Self.fileURL(screenFile, in: folder)
+        if let camera { _ = try Self.fileURL(camera.file, in: folder) }
+        if let framesPerSecond, !Self.supportedFrameRates.contains(framesPerSecond) {
+            throw RecordingProjectError.unreadable(folder.appendingPathComponent(Self.fileName), "unsupported frame rate \(framesPerSecond)")
+        }
+    }
+
+    /// Resolves a file name from `project.json` to a file directly inside `folder`. Refuses
+    /// anything that could reach outside it: path separators, `.`/`..`, and symlinks that lead elsewhere.
+    public static func fileURL(_ name: String, in folder: URL) throws -> URL {
+        guard !name.isEmpty, name != ".", name != "..", !name.contains("/"), !name.contains("\0") else {
+            throw RecordingProjectError.unsafeFileReference(name)
+        }
+        let resolvedFolder = folder.standardizedFileURL.resolvingSymlinksInPath()
+        let candidate = resolvedFolder.appendingPathComponent(name, isDirectory: false)
+        guard candidate.resolvingSymlinksInPath().deletingLastPathComponent().path == resolvedFolder.path else {
+            throw RecordingProjectError.unsafeFileReference(name)
+        }
+        return candidate
     }
 
     public static func folderName(for date: Date, timeZone: TimeZone = .current) -> String {

@@ -371,9 +371,14 @@ final class RecordingCoordinator: ObservableObject {
         FileManager.default.urls(for: .moviesDirectory, in: .userDomainMask)[0].appendingPathComponent("Orbit", isDirectory: true)
     }
 
+    /// Creates a folder (and any missing parents) readable only by you: recordings hold your screen, face, and voice.
+    static func makePrivateFolder(_ folder: URL) throws {
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+    }
+
     private static func makeProjectFolder(for date: Date) throws -> URL {
         let folder = recordingsRoot.appendingPathComponent(RecordingProject.folderName(for: date), isDirectory: true)
-        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try makePrivateFolder(folder)
         return folder
     }
 

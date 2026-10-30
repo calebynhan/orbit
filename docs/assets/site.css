@@ -88,6 +88,10 @@ h1 em { font-style: normal; color: var(--rec); }
 .demo-titlebar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
 .demo-doc { padding: 14px 16px; display: grid; gap: 10px; align-content: start; }
 .demo-doc b { display: block; height: 10px; border-radius: 5px; background: var(--line); }
+.demo-doc b:nth-of-type(1) { width: 62%; }
+.demo-doc b:nth-of-type(2) { width: 84%; }
+.demo-doc b:nth-of-type(3) { width: 48%; }
+.demo-doc b:nth-of-type(4) { width: 76%; }
 .demo-doc .btn { width: 44%; height: 26px; border-radius: 7px; background: var(--rec); opacity: .9; margin-top: 6px; position: relative; }
 .demo-doc .btn::after { content: "Ship it"; position: absolute; inset: 0; display: grid; place-items: center; font: 600 12px var(--font-body); color: #fff; }
 .demo-face {

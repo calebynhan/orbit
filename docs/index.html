@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Orbit — move your face cam after you stop recording</title>
 <meta name="description" content="Orbit is a free, open-source Mac screen recorder. Press ⌘⇧5, put your face in a circle you can drag anywhere, and move it again after recording. No subscription, nothing uploaded.">
@@ -13,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/site.css">
+<script src="assets/demo.js" defer></script>
 </head>
 <body>
 <header class="wrap nav">
@@ -42,7 +44,7 @@
       <div class="demo-stage" id="stage" tabindex="0" aria-label="Mock recording. Drag the face circle anywhere; it still moves after you press Stop.">
         <div class="demo-window" aria-hidden="true">
           <div class="demo-titlebar"><i></i><i></i><i></i></div>
-          <div class="demo-doc"><b style="width:62%"></b><b style="width:84%"></b><b style="width:48%"></b><b style="width:76%"></b><span class="btn"></span></div>
+          <div class="demo-doc"><b></b><b></b><b></b><b></b><span class="btn"></span></div>
         </div>
         <div class="demo-pill"><span class="dot"></span><span id="pill-text">REC 0:07</span></div>
         <div class="demo-face" id="face" aria-hidden="true"></div>
@@ -149,57 +151,5 @@
   <span><a href="https://github.com/calebynhan/orbit">GitHub</a> · <a href="https://github.com/calebynhan/orbit/blob/main/LICENSE">AGPL-3.0</a> · <a href="loom-alternative.html">Leaving Loom</a></span>
 </footer>
 
-<script>
-(() => {
-  const demo = document.getElementById('demo');
-  const stage = document.getElementById('stage');
-  const face = document.getElementById('face');
-  const toggle = document.getElementById('toggle');
-  const pill = document.getElementById('pill-text');
-  const hint = document.getElementById('hint');
-  let recording = true, seconds = 7, timer = null, drag = null;
-
-  const tick = () => { seconds += 1; pill.textContent = 'REC ' + Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0'); };
-  const start = () => { timer = setInterval(tick, 1000); };
-  start();
-
-  toggle.addEventListener('click', () => {
-    recording = !recording;
-    demo.dataset.state = recording ? 'recording' : 'stopped';
-    toggle.textContent = recording ? 'Stop' : 'Record again';
-    toggle.setAttribute('aria-pressed', String(recording));
-    if (recording) { seconds = 0; tick(); start(); hint.textContent = 'Drag the circle off the button. Then press Stop and drag it again.'; }
-    else { clearInterval(timer); pill.textContent = 'STOPPED · still movable'; hint.textContent = 'Stopped. The circle still moves, because the camera was never burned in.'; }
-  });
-
-  const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
-  const place = (x, y) => {
-    const r = stage.getBoundingClientRect(), size = face.offsetWidth;
-    face.style.left = clamp(x - r.left - drag.dx, 0, r.width - size) + 'px';
-    face.style.top = clamp(y - r.top - drag.dy, 0, r.height - size) + 'px';
-  };
-  face.addEventListener('pointerdown', (e) => {
-    const f = face.getBoundingClientRect();
-    drag = { dx: e.clientX - f.left, dy: e.clientY - f.top };
-    face.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  face.addEventListener('pointermove', (e) => { if (drag) place(e.clientX, e.clientY); });
-  const end = () => { drag = null; };
-  face.addEventListener('pointerup', end);
-  face.addEventListener('pointercancel', end);
-
-  // Keyboard: arrow keys move the circle when the stage is focused.
-  stage.addEventListener('keydown', (e) => {
-    const step = e.shiftKey ? 24 : 8, k = e.key;
-    if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(k)) return;
-    e.preventDefault();
-    const f = face.getBoundingClientRect();
-    drag = { dx: 0, dy: 0 };
-    place(f.left + (k === 'ArrowRight' ? step : k === 'ArrowLeft' ? -step : 0), f.top + (k === 'ArrowDown' ? step : k === 'ArrowUp' ? -step : 0));
-    drag = null;
-  });
-})();
-</script>
 </body>
 </html>
