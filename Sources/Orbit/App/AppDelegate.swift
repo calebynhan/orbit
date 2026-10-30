@@ -1,5 +1,4 @@
 import AppKit
-import Carbon.HIToolbox
 import OrbitCore
 
 @MainActor
@@ -8,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var statusMenu: StatusMenu?
     private var hotKey: HotKey?
     private var editors: [EditorWindowController] = []
+    private var welcome: WelcomeWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -16,65 +16,96 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let statusMenu = StatusMenu(
             coordinator: coordinator,
             openRecording: { [weak self] in self?.chooseRecording() },
+            showWelcome: { [weak self] in self?.showWelcome() },
             setOrbitOwnsShortcut: { [weak self] owns in owns ? self?.takeOverShortcut() : self?.giveShortcutBack() }
         )
         self.statusMenu = statusMenu
         coordinator.onPhaseChange = { [weak statusMenu] phase in statusMenu?.update(for: phase) }
         coordinator.onFinished = { [weak self] folder in self?.openEditor(for: folder) }
 
-        registerHotKey()
-        if hotKey == nil {
-            Alerts.show(title: "Shortcut unavailable", message: "Couldn’t register ⌘⇧5. Use the Orbit menu bar icon to start recording.")
-        }
-        offerShortcutTakeoverOnce()
+        registerHotKey(ShortcutStore.shortcut)
+        if !ShortcutStore.hasOnboarded { showWelcome() }
     }
 
-    private func registerHotKey() {
-        guard hotKey == nil else { return }
-        hotKey = HotKey(keyCode: kVK_ANSI_5, modifiers: cmdKey | shiftKey) { [weak self] in
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+
+    // MARK: Shortcut
+
+    private func registerHotKey(_ shortcut: KeyboardShortcut) {
+        hotKey = nil // unregisters the old one
+        hotKey = HotKey(keyCode: shortcut.keyCode, modifiers: shortcut.carbonModifiers) { [weak self] in
             MainActor.assumeIsolated { self?.coordinator.handleHotKey() }
         }
-    }
-
-    // MARK: ⌘⇧5 ownership
-
-    private static let askedTakeoverKey = "askedShortcutTakeover"
-
-    /// First launch while macOS still owns ⌘⇧5: offer to switch it over. Asked once; the menu offers it after that.
-    private func offerShortcutTakeoverOnce() {
-        guard SystemShortcut.macOSOwnsCommandShift5, !UserDefaults.standard.bool(forKey: Self.askedTakeoverKey) else { return }
-        UserDefaults.standard.set(true, forKey: Self.askedTakeoverKey)
-        takeOverShortcut()
-    }
-
-    private func takeOverShortcut() {
-        NSApp.activate()
-        let alert = NSAlert()
-        alert.messageText = "Make ⌘⇧5 open Orbit?"
-        alert.informativeText = "Right now ⌘⇧5 opens macOS’s screenshot toolbar. Orbit can turn off that macOS shortcut "
-            + "so ⌘⇧5 opens Orbit instead. ⌘⇧3 and ⌘⇧4 screenshots keep working.\n\n"
-            + "You can give ⌘⇧5 back to macOS from the Orbit menu at any time."
-        alert.addButton(withTitle: "Use ⌘⇧5 for Orbit")
-        alert.addButton(withTitle: "Not Now")
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
-        setMacOSShortcut(enabled: false)
-    }
-
-    private func giveShortcutBack() {
-        setMacOSShortcut(enabled: true)
-    }
-
-    private func setMacOSShortcut(enabled: Bool) {
-        do {
-            try SystemShortcut.setMacOSShortcut(enabled: enabled)
-            registerHotKey()
-        } catch {
-            Alerts.show(error, settingsPane: .keyboardShortcuts)
+        if hotKey == nil {
+            Alerts.show(title: "Shortcut unavailable", message: "Couldn’t register \(shortcut.displayString). Another app may be using it. Pick a different one from the Orbit menu.")
         }
         statusMenu?.refresh()
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+    private func applyShortcut(_ shortcut: KeyboardShortcut) {
+        ShortcutStore.shortcut = shortcut
+        registerHotKey(shortcut)
+    }
+
+    // MARK: Welcome guide
+
+    private func showWelcome() {
+        if welcome == nil {
+            let model = WelcomeModel(
+                shortcut: ShortcutStore.shortcut,
+                onFinish: { [weak self] shortcut in
+                    ShortcutStore.hasOnboarded = true
+                    self?.applyShortcut(shortcut)
+                    self?.welcome?.close()
+                    self?.welcome = nil
+                },
+                takeOverSystemShortcut: { [weak self] in self?.setMacOSShortcut(enabled: false) }
+            )
+            let controller = WelcomeWindowController(model: model)
+            controller.window?.delegate = self
+            welcome = controller
+        }
+        NSApp.setActivationPolicy(.regular)
+        welcome?.showWindow(nil)
+        NSApp.activate()
+    }
+
+    // MARK: ⌘⇧5 ownership
+
+    private func takeOverShortcut() {
+        NSApp.activate()
+        let alert = NSAlert()
+        alert.messageText = "Make ⇧⌘5 open Orbit?"
+        alert.informativeText = "Right now ⇧⌘5 opens macOS’s screenshot toolbar. Orbit can turn off that macOS shortcut "
+            + "so ⇧⌘5 opens Orbit instead. ⇧⌘3 and ⇧⌘4 screenshots keep working.\n\n"
+            + "You can give ⇧⌘5 back to macOS from the Orbit menu at any time."
+        alert.addButton(withTitle: "Use ⇧⌘5 for Orbit")
+        alert.addButton(withTitle: "Not Now")
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        if let error = setMacOSShortcut(enabled: false) {
+            Alerts.show(title: "Orbit", message: error, settingsPane: .keyboardShortcuts)
+        } else {
+            applyShortcut(.default)
+        }
+    }
+
+    private func giveShortcutBack() {
+        if let error = setMacOSShortcut(enabled: true) {
+            Alerts.show(title: "Orbit", message: error, settingsPane: .keyboardShortcuts)
+        }
+    }
+
+    /// Returns an error message on failure.
+    @discardableResult
+    private func setMacOSShortcut(enabled: Bool) -> String? {
+        do {
+            try SystemShortcut.setMacOSShortcut(enabled: enabled)
+            statusMenu?.refresh()
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
+    }
 
     // MARK: Editors
 
@@ -105,9 +136,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func windowWillClose(_ notification: Notification) {
         guard let window = notification.object as? NSWindow else { return }
+        if window === welcome?.window {
+            ShortcutStore.hasOnboarded = true // closing the guide counts as done; it's in the menu if they want it back
+            welcome = nil
+        }
         editors.filter { $0.window === window }.forEach { $0.tearDown() }
         editors = editors.filter { $0.window !== window }
-        if editors.isEmpty { NSApp.setActivationPolicy(.accessory) }
+        if editors.isEmpty, welcome == nil { NSApp.setActivationPolicy(.accessory) }
     }
 
     private static func makeMainMenu() -> NSMenu {

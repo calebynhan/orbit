@@ -1,4 +1,5 @@
 import AppKit
+import OrbitCore
 
 /// Menu bar item. Idle: a menu. Recording: a red stop button with elapsed time (like macOS's own).
 @MainActor
@@ -6,13 +7,15 @@ final class StatusMenu: NSObject {
     private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let coordinator: RecordingCoordinator
     private let openRecording: () -> Void
+    private let showWelcome: () -> Void
     private let setOrbitOwnsShortcut: (Bool) -> Void
     private var clock: Timer?
 
     /// - Parameter setOrbitOwnsShortcut: `true` = take ⌘⇧5 from macOS, `false` = give it back.
-    init(coordinator: RecordingCoordinator, openRecording: @escaping () -> Void, setOrbitOwnsShortcut: @escaping (Bool) -> Void) {
+    init(coordinator: RecordingCoordinator, openRecording: @escaping () -> Void, showWelcome: @escaping () -> Void, setOrbitOwnsShortcut: @escaping (Bool) -> Void) {
         self.coordinator = coordinator
         self.openRecording = openRecording
+        self.showWelcome = showWelcome
         self.setOrbitOwnsShortcut = setOrbitOwnsShortcut
         super.init()
         showIdle()
@@ -71,19 +74,19 @@ final class StatusMenu: NSObject {
 
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
-        let record = NSMenuItem(title: "New Recording…", action: #selector(newRecording), keyEquivalent: "5")
-        record.keyEquivalentModifierMask = [.command, .shift]
-        menu.addItem(record)
+        let shortcut = ShortcutStore.shortcut
+        menu.addItem(NSMenuItem(title: "New Recording…  \(shortcut.displayString)", action: #selector(newRecording), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Open Recording…", action: #selector(open), keyEquivalent: "o"))
         menu.addItem(NSMenuItem(title: "Show Recordings in Finder", action: #selector(revealRecordings), keyEquivalent: ""))
 
         menu.addItem(.separator())
-        if SystemShortcut.macOSOwnsCommandShift5 {
-            let takeOver = NSMenuItem(title: "⚠︎ ⌘⇧5 Opens macOS’s Toolbar — Use It for Orbit…", action: #selector(takeOverShortcut), keyEquivalent: "")
+        menu.addItem(NSMenuItem(title: "Welcome Guide & Shortcut…", action: #selector(welcome), keyEquivalent: ""))
+        if SystemShortcut.macOSOwnsCommandShift5, shortcut.isMacOSScreenshotShortcut {
+            let takeOver = NSMenuItem(title: "⚠︎ ⇧⌘5 Opens macOS’s Toolbar — Use It for Orbit…", action: #selector(takeOverShortcut), keyEquivalent: "")
             takeOver.toolTip = "Turns off macOS’s “Screenshot and recording options” shortcut so ⌘⇧5 opens Orbit. ⌘⇧3 and ⌘⇧4 keep working."
             menu.addItem(takeOver)
-        } else {
-            let giveBack = NSMenuItem(title: "Give ⌘⇧5 Back to macOS", action: #selector(restoreShortcut), keyEquivalent: "")
+        } else if !SystemShortcut.macOSOwnsCommandShift5 {
+            let giveBack = NSMenuItem(title: "Give ⇧⌘5 Back to macOS", action: #selector(restoreShortcut), keyEquivalent: "")
             giveBack.toolTip = "Turns macOS’s screenshot toolbar shortcut back on."
             menu.addItem(giveBack)
         }
@@ -105,6 +108,7 @@ final class StatusMenu: NSObject {
         NSWorkspace.shared.open(root)
     }
 
+    @objc private func welcome() { showWelcome() }
     @objc private func takeOverShortcut() { setOrbitOwnsShortcut(true) }
     @objc private func restoreShortcut() { setOrbitOwnsShortcut(false) }
 
