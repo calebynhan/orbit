@@ -156,6 +156,7 @@ private struct OverlayControls: View {
             HStack(spacing: 10) {
                 sourceButtons
                 Spacer()
+                deleteButton
                 exportButton
             }
         }
@@ -243,6 +244,17 @@ private struct OverlayControls: View {
                 Button("Remove Face Cam") { Task { await model.removeFaceCam() } }
             }
         }
+    }
+
+    private var deleteButton: some View {
+        Button(role: .destructive) {
+            model.deleteRecording()
+        } label: {
+            Label("Delete", systemImage: "trash")
+        }
+        .keyboardShortcut(.delete, modifiers: .command)
+        .disabled(model.isExporting || model.isRecordingTake)
+        .help("Move this recording to the Trash (⌘⌫)")
     }
 
     @ViewBuilder

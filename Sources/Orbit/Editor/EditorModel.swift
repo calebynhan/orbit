@@ -165,6 +165,31 @@ final class EditorModel: ObservableObject {
         }
     }
 
+    // MARK: Delete
+
+    /// Called after the recording has been moved to the Trash, so the window can close.
+    var onDeleted: (() -> Void)?
+
+    /// Asks, then moves the whole recording folder to the Trash.
+    func deleteRecording() {
+        let alert = NSAlert()
+        alert.messageText = "Delete this recording?"
+        alert.informativeText = "“\(folder.lastPathComponent)” will be moved to the Trash."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Move to Trash")
+        alert.addButton(withTitle: "Cancel")
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        tearDown() // release the files before moving them
+        do {
+            try FileManager.default.trashItem(at: folder, resultingItemURL: nil)
+            onDeleted?()
+        } catch {
+            Self.log.error("Delete failed: \(error.localizedDescription)")
+            Alerts.show(error)
+        }
+    }
+
     // MARK: Face-cam sources (post-recording)
 
     /// Records your camera while the screen recording plays back, then overlays it.

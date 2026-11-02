@@ -19,6 +19,7 @@ final class EditorWindowController: NSWindowController {
         window.contentView = NSHostingView(rootView: EditorView(model: model))
         window.center()
         super.init(window: window)
+        model.onDeleted = { [weak self] in self?.window?.close() }
     }
 
     @available(*, unavailable)
