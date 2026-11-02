@@ -197,7 +197,7 @@ private struct OverlayControls: View {
                 ForEach(BubbleShape.allCases, id: \.self) { Text($0.label).tag($0) }
             }
             .pickerStyle(.segmented)
-            .frame(width: 220)
+            .fixedSize()
 
             HStack {
                 Text("Outline")

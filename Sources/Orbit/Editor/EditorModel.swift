@@ -183,11 +183,17 @@ final class EditorModel: ObservableObject {
         tearDown() // release the files before moving them
         do {
             try FileManager.default.trashItem(at: folder, resultingItemURL: nil)
-            onDeleted?()
         } catch {
-            Self.log.error("Delete failed: \(error.localizedDescription)")
-            Alerts.show(error)
+            Self.log.error("Trash failed (\(error.localizedDescription)); deleting instead")
+            do {
+                try FileManager.default.removeItem(at: folder)
+            } catch {
+                Alerts.show(error)
+                return
+            }
         }
+        // Close on the next turn of the run loop, outside the button's action.
+        DispatchQueue.main.async { [onDeleted] in onDeleted?() }
     }
 
     // MARK: Face-cam sources (post-recording)

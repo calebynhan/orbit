@@ -79,6 +79,7 @@ final class RecordingCoordinator: ObservableObject {
     private var toolbar: CaptureToolbarController?
     private var areaOverlay: AreaSelectionController?
     private var stopButton: StopButtonController?
+    private var stopTouchBar: StopTouchBarController?
     private var camera: CameraCapture?
     private var bubble: CameraBubbleController?
     private var screenRecorder: ScreenRecorder?
@@ -304,14 +305,22 @@ final class RecordingCoordinator: ObservableObject {
         showStopButton(startedAt: startedAt)
     }
 
-    /// On-screen stop control, for when the menu bar item is hidden behind a notch.
+    /// Stop controls beyond the menu bar item: the Touch Bar (where there is one), and a floating
+    /// pill on notched Macs, whose menu bar may hide the status item.
     private func showStopButton(startedAt: Date) {
-        let button = StopButtonController(on: selectedScreen, startedAt: startedAt) { [weak self] in self?.stopRecording() }
+        let stop: () -> Void = { [weak self] in self?.stopRecording() }
+        let touchBar = StopTouchBarController(startedAt: startedAt, onStop: stop)
+        touchBar.show()
+        stopTouchBar = touchBar
+        guard selectedScreen.safeAreaInsets.top > 0 else { return }
+        let button = StopButtonController(on: selectedScreen, startedAt: startedAt, onStop: stop)
         button.show()
         stopButton = button
     }
 
     private func closeStopButton() {
+        stopTouchBar?.close()
+        stopTouchBar = nil
         stopButton?.close()
         stopButton = nil
     }
