@@ -24,7 +24,7 @@ final class StopTouchBarController: NSObject, NSTouchBarDelegate {
         button.imagePosition = .imageLeading
         button.imageHugsTitle = true
         touchBar.delegate = self
-        touchBar.defaultItemIdentifiers = [.flexibleSpace, Self.stopItem, .flexibleSpace]
+        touchBar.defaultItemIdentifiers = [Self.stopItem, .flexibleSpace] // left edge, beside the ✕
     }
 
     // System-modal presentation isn't in the public headers (macOS's own screen recording uses it),

@@ -178,6 +178,9 @@ final class EditorModel: ObservableObject {
         alert.alertStyle = .warning
         alert.addButton(withTitle: "Move to Trash")
         alert.addButton(withTitle: "Cancel")
+        // In front of every other app, even when the editor is behind one.
+        NSApp.activate()
+        alert.window.level = .floating
         guard alert.runModal() == .alertFirstButtonReturn else { return }
 
         tearDown() // release the files before moving them
