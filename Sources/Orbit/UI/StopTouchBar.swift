@@ -5,6 +5,7 @@ import AppKit
 @MainActor
 final class StopTouchBarController: NSObject, NSTouchBarDelegate {
     private static let stopItem = NSTouchBarItem.Identifier("dev.orbit.Orbit.stop")
+    private static let minWidth: CGFloat = 132
 
     private let touchBar = NSTouchBar()
     private let button: NSButton
@@ -15,16 +16,18 @@ final class StopTouchBarController: NSObject, NSTouchBarDelegate {
     init(startedAt: Date, onStop: @escaping () -> Void) {
         self.startedAt = startedAt
         self.onStop = onStop
-        let image = NSImage(systemSymbolName: "stop.fill", accessibilityDescription: "Stop") ?? NSImage()
+        let glyph = NSImage(systemSymbolName: "stop.fill", accessibilityDescription: "Stop")
+        let image = glyph?.withSymbolConfiguration(.init(paletteColors: [.systemRed])) ?? NSImage()
         button = NSButton(title: Self.title(elapsed: 0), image: image, target: nil, action: nil)
         super.init()
         button.target = self
         button.action = #selector(stop)
-        button.bezelColor = .systemRed
+        // Like macOS's own recorder: a standard dark button with a red stop glyph, a small gap from the ✕.
         button.imagePosition = .imageLeading
         button.imageHugsTitle = true
+        button.widthAnchor.constraint(greaterThanOrEqualToConstant: Self.minWidth).isActive = true
         touchBar.delegate = self
-        touchBar.defaultItemIdentifiers = [Self.stopItem, .flexibleSpace] // left edge, beside the ✕
+        touchBar.defaultItemIdentifiers = [.fixedSpaceSmall, Self.stopItem, .flexibleSpace]
     }
 
     // System-modal presentation isn't in the public headers (macOS's own screen recording uses it),
