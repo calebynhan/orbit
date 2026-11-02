@@ -8,6 +8,8 @@ struct ScreenRecordingOptions {
     let displayID: CGDirectDisplayID
     let outputURL: URL
     let microphone: Bool
+    /// `AVCaptureDevice.uniqueID` of the microphone to record. `nil` = system default.
+    let microphoneID: String?
     let systemAudio: Bool
     let framesPerSecond: Int32
     /// Display-local points, top-left origin (ScreenCaptureKit's `sourceRect`). `nil` = whole display.
@@ -60,7 +62,7 @@ final class ScreenRecorder: NSObject, SCStreamDelegate, SCRecordingOutputDelegat
         config.excludesCurrentProcessAudio = true
         config.captureMicrophone = options.microphone
         if options.microphone {
-            config.microphoneCaptureDeviceID = AVCaptureDevice.default(for: .audio)?.uniqueID
+            config.microphoneCaptureDeviceID = options.microphoneID ?? AVCaptureDevice.default(for: .audio)?.uniqueID
         }
 
         let outputConfig = SCRecordingOutputConfiguration()

@@ -86,11 +86,7 @@ struct CaptureToolbarView: View {
             ) { coordinator.toggleCamera() }
                 .help("Show your camera in a draggable circle. You can also add or move it after recording.")
 
-            ToolbarButton(
-                systemImage: coordinator.microphoneOn ? "mic.fill" : "mic.slash",
-                label: "Mic",
-                isOn: coordinator.microphoneOn
-            ) { coordinator.microphoneOn.toggle() }
+            micControl
 
             ToolbarButton(
                 systemImage: coordinator.systemAudioOn ? "speaker.wave.2.fill" : "speaker.slash",
@@ -140,6 +136,51 @@ struct CaptureToolbarView: View {
                 .environment(\.colorScheme, .dark)
         )
         .environment(\.colorScheme, .dark)
+    }
+
+    /// Click toggles the mic; the chevron picks which one, like macOS's Options ▸ Microphone.
+    private var micControl: some View {
+        HStack(spacing: 0) {
+            ToolbarButton(
+                systemImage: coordinator.microphoneOn ? "mic.fill" : "mic.slash",
+                label: "Mic",
+                isOn: coordinator.microphoneOn
+            ) { coordinator.microphoneOn.toggle() }
+
+            Menu {
+                Picker("Microphone", selection: micSelection) {
+                    ForEach(coordinator.microphones) { mic in
+                        Text(mic.name).tag(Optional(mic.id))
+                    }
+                }
+                .pickerStyle(.inline)
+                if coordinator.microphones.isEmpty {
+                    Text("No microphone found")
+                }
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 9, weight: .bold))
+                    .frame(width: 14, height: 40)
+                    .contentShape(Rectangle())
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help(micName)
+        }
+    }
+
+    /// Shows the microphone that will actually be used, falling back to the first available one.
+    private var micSelection: Binding<String?> {
+        Binding(
+            get: { MicrophoneSource.resolve(coordinator.microphoneID, among: coordinator.microphones) },
+            set: { coordinator.microphoneID = $0 }
+        )
+    }
+
+    private var micName: String {
+        let id = MicrophoneSource.resolve(coordinator.microphoneID, among: coordinator.microphones)
+        return coordinator.microphones.first { $0.id == id }?.name ?? "Microphone"
     }
 }
 

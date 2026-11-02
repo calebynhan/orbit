@@ -35,6 +35,11 @@ final class RecordingCoordinator: ObservableObject {
     @Published var microphoneOn = defaults.object(forKey: "microphoneOn") as? Bool ?? true {
         didSet { Self.defaults.set(microphoneOn, forKey: "microphoneOn") }
     }
+    /// Chosen microphone (`AVCaptureDevice.uniqueID`). `nil` = system default.
+    @Published var microphoneID: String? = defaults.string(forKey: "microphoneID") {
+        didSet { Self.defaults.set(microphoneID, forKey: "microphoneID") }
+    }
+    @Published private(set) var microphones: [MicrophoneSource] = []
     @Published var systemAudioOn = defaults.bool(forKey: "systemAudioOn") {
         didSet { Self.defaults.set(systemAudioOn, forKey: "systemAudioOn") }
     }
@@ -73,6 +78,7 @@ final class RecordingCoordinator: ObservableObject {
 
     private var toolbar: CaptureToolbarController?
     private var areaOverlay: AreaSelectionController?
+    private var stopButton: StopButtonController?
     private var camera: CameraCapture?
     private var bubble: CameraBubbleController?
     private var screenRecorder: ScreenRecorder?
@@ -105,6 +111,7 @@ final class RecordingCoordinator: ObservableObject {
         displays = NSScreen.screens.compactMap { screen in
             screen.displayID.map { DisplayChoice(id: $0, name: screen.localizedName) }
         }
+        microphones = MicrophoneSource.available()
         setPhase(.choosing)
         selectedDisplayID = screen.displayID ?? CGMainDisplayID() // rebuilds the overlay if the display changed
         refreshAreaOverlay()
@@ -262,6 +269,7 @@ final class RecordingCoordinator: ObservableObject {
             displayID: selectedDisplayID,
             outputURL: folder.appendingPathComponent("screen.mov"),
             microphone: microphoneOn,
+            microphoneID: MicrophoneSource.resolve(microphoneID, among: microphones),
             systemAudio: systemAudioOn,
             framesPerSecond: Int32(framesPerSecond),
             sourceRect: captureMode == .selection ? SelectionGeometry.sourceRect(selection: area, display: display) : nil,
@@ -293,6 +301,19 @@ final class RecordingCoordinator: ObservableObject {
         RunLoop.main.add(timer, forMode: .common) // keep sampling while the bubble is being dragged
         sampler = timer
         setPhase(.recording(startedAt: startedAt))
+        showStopButton(startedAt: startedAt)
+    }
+
+    /// On-screen stop control, for when the menu bar item is hidden behind a notch.
+    private func showStopButton(startedAt: Date) {
+        let button = StopButtonController(on: selectedScreen, startedAt: startedAt) { [weak self] in self?.stopRecording() }
+        button.show()
+        stopButton = button
+    }
+
+    private func closeStopButton() {
+        stopButton?.close()
+        stopButton = nil
     }
 
     private func sampleBubble() {
@@ -303,6 +324,7 @@ final class RecordingCoordinator: ObservableObject {
 
     func stopRecording() {
         guard isRecording else { return }
+        closeStopButton()
         setPhase(.finishing)
         Task { await finishRecording() }
     }
