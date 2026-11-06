@@ -5,8 +5,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: macOS and Mac
-      placeholder: macOS 15.3, MacBook Pro M3
+      label: OS and computer
+      placeholder: macOS 15.3 on a MacBook Pro M3 · Windows 11 24H2 · Ubuntu 24.04 (Wayland)
     validations:
       required: true
   - type: textarea
@@ -20,4 +20,4 @@ body:
     id: extra
     attributes:
       label: Anything else
-      placeholder: Screenshots, or the project.json from ~/Movies/Orbit/<recording>.
+      placeholder: Screenshots, or the project.json from the recording's folder (Movies/Orbit on Mac, Videos/Orbit on Windows and Linux).

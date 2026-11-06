@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+  <title>Orbit</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    body { display: flex; align-items: flex-end; justify-content: center; padding: 6px; }
+    #bar {
+      display: flex; align-items: center; gap: 4px; padding: 7px 9px;
+      background: rgba(28, 28, 30, 0.94); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 13px; box-shadow: 0 6px 22px rgba(0,0,0,0.45);
+      -webkit-app-region: drag; white-space: nowrap;
+    }
+    #bar > * { -webkit-app-region: no-drag; }
+    .divider { width: 1px; height: 32px; background: rgba(255,255,255,0.14); margin: 0 4px; }
+    .tool {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      min-width: 66px; height: 44px; padding: 0 6px; border: 0; border-radius: 8px; background: transparent; cursor: default;
+    }
+    .tool.icon-only { min-width: 30px; }
+    .tool span { font-size: 10px; color: rgba(255,255,255,0.85); }
+    .tool:hover { background: rgba(255,255,255,0.08); }
+    .tool.on { background: rgba(255,255,255,0.17); }
+    .split { display: flex; align-items: center; }
+    .chev { width: 16px; height: 44px; border: 0; background: transparent; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .chev:hover { background: rgba(255,255,255,0.08); }
+    .chev svg { width: 14px; height: 14px; stroke-width: 2.6; }
+    select {
+      background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px; padding: 4px 6px; max-width: 160px; font: inherit;
+    }
+    #options { border: 0; background: transparent; font-size: 12px; font-weight: 500; padding: 6px 8px; border-radius: 7px; }
+    #options:hover { background: rgba(255,255,255,0.08); }
+    #record {
+      border: 0; border-radius: 999px; background: var(--accent); color: #fff;
+      font-weight: 600; font-size: 13px; padding: 8px 16px; margin-left: 4px;
+    }
+    #record:hover { filter: brightness(1.1); }
+    #record:disabled { opacity: 0.5; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body class="transparent">
+  <div id="bar">
+    <button class="tool icon-only" id="close" title="Close (Esc)"></button>
+    <div class="divider"></div>
+    <button class="tool" id="entireScreen" title="Record the whole screen"></button>
+    <button class="tool" id="selection" title="Drag to draw an area. Drag inside to move it, or the edges to resize."></button>
+    <select id="display" title="Which screen to record" hidden></select>
+    <div class="divider"></div>
+    <button class="tool" id="camera" title="Show your camera in a draggable bubble. You can also add or move it after recording."></button>
+    <div class="split">
+      <button class="tool" id="mic"></button>
+      <button class="chev" id="micMenu" title="Choose a microphone"></button>
+    </div>
+    <button class="tool" id="systemAudio" title="Record what your computer plays" hidden></button>
+    <div class="divider"></div>
+    <button id="options" title="Resolution, selection shape, and frame rate"></button>
+    <button id="record" title="Start recording (Enter)">Record</button>
+  </div>
+  <script type="module" src="toolbar.js"></script>
+</body>
+</html>

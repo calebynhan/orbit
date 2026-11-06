@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+  <title>Welcome to Orbit</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    body { background: var(--bg); display: flex; flex-direction: column; padding: 36px 40px 28px; }
+    .step { flex: 1; display: flex; flex-direction: column; }
+    .step[hidden] { display: none; }
+    h1 { font-size: 26px; margin: 18px 0 6px; font-weight: 700; letter-spacing: -0.01em; }
+    p { color: var(--muted); line-height: 1.5; margin: 0 0 10px; font-size: 14px; }
+    .hero { display: flex; align-items: center; justify-content: center; height: 220px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); position: relative; overflow: hidden; }
+    .screen { width: 300px; height: 170px; border-radius: 8px; background: linear-gradient(135deg, #2a2d34, #1c1e22); border: 1px solid rgba(255,255,255,0.1); position: relative; }
+    .screen::before { content: ''; position: absolute; left: 18px; top: 18px; width: 120px; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.14); box-shadow: 0 22px 0 -2px rgba(255,255,255,0.08), 0 40px 0 -2px rgba(255,255,255,0.08), 0 58px 0 -2px rgba(255,255,255,0.08); }
+    .face { position: absolute; left: 18px; bottom: 16px; width: 62px; height: 62px; border-radius: 50%; border: 3px solid #fff; background: radial-gradient(circle at 50% 38%, #e9c6a8 0 13px, transparent 14px), radial-gradient(circle at 50% 100%, #5b6b8a 0 28px, transparent 29px), #3a4150; }
+    .rec { position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 6px; font: 600 11px ui-monospace, monospace; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 999px; }
+    .rec::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--rec); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-top: 14px; }
+    .keys { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    kbd { font: 600 18px system-ui, sans-serif; padding: 8px 14px; border-radius: 9px; background: rgba(255,255,255,0.09); border: 1px solid var(--line); min-width: 160px; text-align: center; }
+    kbd.listening { border-color: var(--accent); color: var(--muted); }
+    .error { color: #ff8a8d; font-size: 12.5px; margin-top: 10px; min-height: 16px; }
+    .ok { color: var(--ok); }
+    ol { margin: 6px 0 0; padding-left: 20px; color: rgba(255,255,255,0.85); line-height: 1.55; font-size: 14px; }
+    ol li { margin-bottom: 8px; }
+    ol li span { color: var(--muted); }
+    code { font: 12.5px ui-monospace, monospace; background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; -webkit-user-select: text; user-select: text; }
+    label.check { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: rgba(255,255,255,0.85); }
+    input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
+    footer { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+    .dots { display: flex; gap: 6px; flex: 1; }
+    .dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+    .dots span.on { background: #fff; }
+    .btn { height: 34px; padding: 0 16px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel); font-weight: 500; }
+    .btn:hover { background: rgba(255,255,255,0.12); }
+    .btn.primary { background: var(--accent); border-color: transparent; color: #fff; font-weight: 600; }
+    .btn.primary:hover { filter: brightness(1.1); background: var(--accent); }
+    a { color: #fff; }
+  </style>
+</head>
+<body>
+  <section class="step" data-step="0">
+    <div class="hero"><div class="screen"><div class="face"></div><div class="rec">REC</div></div></div>
+    <h1>Orbit</h1>
+    <p>Record your screen with your face in a bubble you can drag around, and move it again after you stop. Local, free, and open source.</p>
+  </section>
+
+  <section class="step" data-step="1" hidden>
+    <h1>Your shortcut</h1>
+    <p>Press it anywhere to open the capture bar. Press it again to stop recording.</p>
+    <div class="card">
+      <div class="keys">
+        <kbd id="shortcut"></kbd>
+        <button class="btn" id="change">Change…</button>
+      </div>
+      <div class="error" id="shortcutError"></div>
+    </div>
+    <p id="waylandNote" class="card" hidden>On Wayland your desktop may not let apps grab keys. If the shortcut doesn’t work, add one in your system’s keyboard settings that runs <code>orbit --toggle</code>.</p>
+    <label class="check" id="loginRow" hidden><input type="checkbox" id="login"> Open Orbit when I log in</label>
+  </section>
+
+  <section class="step" data-step="2" hidden>
+    <h1>How it works</h1>
+    <ol>
+      <li>Press <b id="shortcut2"></b>. <span>The bar opens at the bottom of the screen.</span></li>
+      <li>Pick <b>Entire Screen</b> or <b>Selected Portion</b>. <span>Drag your face cam where you want it. Scroll on it to resize, right-click for shape and outline.</span></li>
+      <li>Click <b>Record</b>. <span>Stop with the shortcut, the stop button, or the tray icon.</span></li>
+      <li>The editor opens. <span>Move or restyle the face cam, re-record it, then export an MP4.</span></li>
+    </ol>
+    <p id="platformNote" style="margin-top: 8px"></p>
+    <p>Recordings are saved in <code id="folder"></code>.</p>
+  </section>
+
+  <footer>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <button class="btn" id="back" hidden>Back</button>
+    <button class="btn" id="later" hidden>Done</button>
+    <button class="btn primary" id="next">Get Started</button>
+  </footer>
+  <script type="module" src="welcome.js"></script>
+</body>
+</html>

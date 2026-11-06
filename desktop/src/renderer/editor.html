@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; media-src 'self' orbit: blob: mediastream:; connect-src 'self' orbit:">
+  <title>Orbit</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    body { display: flex; flex-direction: column; background: var(--bg); }
+    #stage { position: relative; flex: 1; background: #000; overflow: hidden; min-height: 200px; }
+    #screen { position: absolute; display: block; }
+    #bubble { position: absolute; overflow: hidden; pointer-events: none; }
+    #bubbleInner { position: absolute; overflow: hidden; background: #000; }
+    #camera { position: absolute; object-fit: cover; }
+    #handle {
+      position: absolute; border: 2px dashed rgba(255,255,255,0.25); cursor: grab;
+      transition: border-color 0.12s;
+    }
+    #handle:hover, #handle.dragging { border-color: rgba(255,255,255,0.9); }
+    #handle.dragging { cursor: grabbing; }
+    #message { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; color: #fff; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #transport { display: flex; align-items: center; gap: 12px; padding: 8px 14px; }
+    #play { width: 30px; height: 30px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+    #play:hover { background: var(--panel); }
+    #scrub { flex: 1; }
+    #time { font-variant-numeric: tabular-nums; color: var(--muted); }
+    hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+
+    #controls { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .row.actions { gap: 10px; }
+    .spacer { flex: 1; }
+    label.inline { display: flex; align-items: center; gap: 8px; }
+    input[type=range] { accent-color: var(--accent); width: 140px; }
+    #scrub { width: auto; }
+    input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
+    input[type=color] { width: 34px; height: 24px; border: 1px solid var(--line); border-radius: 5px; background: transparent; padding: 1px; }
+    .segmented { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+    .segmented button { border: 0; background: transparent; padding: 4px 10px; border-radius: 5px; font-size: 12px; }
+    .segmented button.on { background: rgba(255,255,255,0.18); }
+    .segmented button:disabled { opacity: 0.4; }
+    .muted { color: var(--muted); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px;
+      border: 1px solid var(--line); border-radius: 7px; background: var(--panel); font-size: 12.5px;
+    }
+    .btn:hover:not(:disabled) { background: rgba(255,255,255,0.12); }
+    .btn:disabled { opacity: 0.45; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn.primary { background: var(--accent); border-color: transparent; color: #fff; font-weight: 600; }
+    .btn.primary:hover:not(:disabled) { filter: brightness(1.1); background: var(--accent); }
+    .btn.danger { color: #ff8a8d; }
+    .btn.recording { background: var(--accent); color: #fff; border-color: transparent; }
+    #progress { display: flex; align-items: center; gap: 10px; width: 240px; }
+    #progress progress { flex: 1; accent-color: var(--accent); }
+    .note { font-size: 12px; color: var(--muted); }
+    .disabled { opacity: 0.45; pointer-events: none; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <video id="screen" preload="auto" playsinline></video>
+    <div id="bubble" hidden><div id="bubbleInner"><video id="camera" preload="auto" playsinline></video></div></div>
+    <div id="handle" title="Drag to move your face cam" hidden></div>
+    <div id="message"><div class="spinner"></div></div>
+  </div>
+  <div id="transport">
+    <button id="play" title="Play / Pause (Space)"></button>
+    <input id="scrub" type="range" min="0" max="1" step="0.001" value="0">
+    <span id="time">0:00 / 0:00</span>
+  </div>
+  <hr>
+  <div id="controls">
+    <div id="noCamera" class="muted" hidden>No face cam yet. Record one while this video plays, or add a clip you already have.</div>
+    <div id="bubbleRow" class="row" hidden>
+      <label class="inline"><input id="visible" type="checkbox"> Face cam</label>
+      <div class="segmented" id="placement">
+        <button data-value="followRecording">Follow my recording</button>
+        <button data-value="fixed">Pinned</button>
+      </div>
+      <label class="inline">Size <input id="size" type="range" min="0.08" max="0.6" step="0.001"></label>
+      <label class="inline"><input id="mirror" type="checkbox"> Mirror</label>
+    </div>
+    <div id="styleRow" class="row" hidden>
+      <div class="segmented" id="shape">
+        <button data-value="circle">Circle</button>
+        <button data-value="rounded">Rounded</button>
+        <button data-value="square">Square</button>
+      </div>
+      <label class="inline">Outline <input id="outline" type="range" min="0" max="0.08" step="0.001"></label>
+      <label class="inline">Color <input id="color" type="color"></label>
+    </div>
+    <div id="linuxNote" class="note" hidden>On Linux the live bubble is part of the screen video itself, so moving it here leaves the original in place. Record a Selected Portion with the bubble outside it to move it freely later.</div>
+    <div class="row actions">
+      <button class="btn" id="take"></button>
+      <button class="btn" id="import"></button>
+      <button class="btn" id="remove" hidden>Remove Face Cam</button>
+      <div class="spacer"></div>
+      <button class="btn danger" id="delete" title="Move this recording to the trash (Ctrl+Delete)"></button>
+      <div id="progress" hidden><progress max="1" value="0"></progress><span id="progressLabel">Exporting… 0%</span></div>
+      <button class="btn primary" id="export" title="Export MP4 (Ctrl+E)"></button>
+    </div>
+  </div>
+  <script type="module" src="editor.js"></script>
+</body>
+</html>

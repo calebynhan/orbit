@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+  <title>Orbit stop</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; }
+    #pill {
+      display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 6px 0 14px;
+      background: rgba(24, 24, 26, 0.94); border: 1px solid rgba(255,255,255,0.12); border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4); -webkit-app-region: drag;
+    }
+    #dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rec); animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 50% { opacity: 0.35; } }
+    #time { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 38px; }
+    #stop {
+      -webkit-app-region: no-drag; display: flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px;
+      border: 0; border-radius: 999px; background: var(--accent); color: #fff; font-weight: 600; font-size: 12px;
+    }
+    #stop svg { width: 12px; height: 12px; }
+  </style>
+</head>
+<body class="transparent">
+  <div id="pill">
+    <div id="dot"></div>
+    <div id="time">0:00</div>
+    <button id="stop" title="Stop recording"></button>
+  </div>
+  <script type="module" src="stop.js"></script>
+</body>
+</html>

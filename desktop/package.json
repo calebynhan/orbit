@@ -1,0 +1,90 @@
+{
+  "name": "orbit",
+  "productName": "Orbit",
+  "version": "0.1.0",
+  "description": "Screen recording with a face cam you can move, even after you stop. Windows and Linux.",
+  "license": "AGPL-3.0-only",
+  "author": "Orbit contributors",
+  "homepage": "https://calebynhan.github.io/orbit/",
+  "repository": "github:calebynhan/orbit",
+  "type": "module",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "icons": "node scripts/make-icons.js",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux",
+    "smoke": "electron --no-sandbox scripts/smoke.js"
+  },
+  "dependencies": {
+    "mediabunny": "1.65.2"
+  },
+  "devDependencies": {
+    "electron": "45.2.3",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "dev.orbit.Orbit",
+    "productName": "Orbit",
+    "artifactName": "Orbit-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "src/**/*",
+      "assets/icons/**/*",
+      "package.json",
+      "!node_modules/@types/**",
+      "!node_modules/mediabunny/src/**",
+      "!node_modules/mediabunny/dist/modules/**",
+      "!node_modules/mediabunny/dist/*.d.ts",
+      "!node_modules/mediabunny/dist/bundles/*.cjs",
+      "!node_modules/mediabunny/dist/bundles/*.min.mjs"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "assets/icons/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Orbit"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "AudioVideo;Video;Recorder",
+      "icon": "assets/icons/icon.png",
+      "synopsis": "Screen recorder with a movable face cam",
+      "maintainer": "Orbit contributors <https://github.com/calebynhan/orbit>",
+      "executableArgs": [
+        "--ozone-platform=x11"
+      ]
+    }
+  }
+}

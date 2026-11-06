@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; media-src 'self' blob: mediastream:">
+  <title>Orbit camera</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    #outer { position: fixed; inset: 0; overflow: hidden; background: #fff; cursor: grab; }
+    #outer:active { cursor: grabbing; }
+    #inner { position: absolute; overflow: hidden; background: #000; }
+    /* The photo fills the whole bubble and the inner shape crops it, like the export. */
+    video { position: absolute; object-fit: cover; transform: scaleX(-1); pointer-events: none; }
+  </style>
+</head>
+<body class="transparent">
+  <div id="outer" title="Drag to move · scroll to resize · right-click for size, shape, and outline">
+    <div id="inner"><video id="video" autoplay muted playsinline></video></div>
+  </div>
+  <script type="module" src="bubble.js"></script>
+</body>
+</html>

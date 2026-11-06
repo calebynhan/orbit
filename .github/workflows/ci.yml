@@ -7,6 +7,7 @@ on:
 
 jobs:
   test:
+    name: macOS app
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -16,3 +17,38 @@ jobs:
       - run: swift build
       - run: swift test
       - run: scripts/build-app.sh
+
+  desktop:
+    name: Windows & Linux app (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - name: Record, edit, and export under Xvfb
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update && sudo apt-get install -y xvfb
+          xvfb-run -a -s "-screen 0 1600x900x24" npm run smoke
+      - name: Package
+        run: npx electron-builder --${{ runner.os == 'Windows' && 'win' || 'linux' }} --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: orbit-${{ runner.os }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
+          if-no-files-found: error
